@@ -1,0 +1,182 @@
+<quiz>
+<question id="1">
+<category>Java</category>
+<level>Easy</level>
+<text>Which keyword is used to create a class in Java?</text>
+<options>
+<option>class</option>
+<option>struct</option>
+<option>define</option>
+<option>object</option>
+</options>
+<answer>class</answer>
+</question>
+<question id="2">
+<category>Java</category>
+<level>Easy</level>
+<text>Which method is the usual entry point of a Java application?</text>
+<options>
+<option>start()</option>
+<option>main()</option>
+<option>run()</option>
+<option>execute()</option>
+</options>
+<answer>main()</answer>
+</question>
+<question id="3">
+<category>Java</category>
+<level>Easy</level>
+<text>Which data type stores true or false values in Java?</text>
+<options>
+<option>int</option>
+<option>String</option>
+<option>boolean</option>
+<option>char</option>
+</options>
+<answer>boolean</answer>
+</question>
+<question id="4">
+<category>Java</category>
+<level>Easy</level>
+<text>Which keyword is used to create an object in Java?</text>
+<options>
+<option>this</option>
+<option>new</option>
+<option>static</option>
+<option>void</option>
+</options>
+<answer>new</answer>
+</question>
+<question id="5">
+<category>Java</category>
+<level>Easy</level>
+<text>Which OOP concept allows one class to acquire properties and methods of another class?</text>
+<options>
+<option>Encapsulation</option>
+<option>Polymorphism</option>
+<option>Inheritance</option>
+<option>Abstraction</option>
+</options>
+<answer>Inheritance</answer>
+</question>
+<question id="6">
+<category>SQL</category>
+<level>Easy</level>
+<text>Which SQL command is used to retrieve data from a table?</text>
+<options>
+<option>INSERT</option>
+<option>SELECT</option>
+<option>UPDATE</option>
+<option>DELETE</option>
+</options>
+<answer>SELECT</answer>
+</question>
+<question id="7">
+<category>SQL</category>
+<level>Easy</level>
+<text>Which SQL clause is used to filter rows based on a condition?</text>
+<options>
+<option>ORDER BY</option>
+<option>GROUP BY</option>
+<option>WHERE</option>
+<option>SELECT</option>
+</options>
+<answer>WHERE</answer>
+</question>
+<question id="8">
+<category>SQL</category>
+<level>Easy</level>
+<text>Which SQL command adds a new row to a table?</text>
+<options>
+<option>INSERT</option>
+<option>UPDATE</option>
+<option>ALTER</option>
+<option>DROP</option>
+</options>
+<answer>INSERT</answer>
+</question>
+<question id="9">
+<category>SQL</category>
+<level>Easy</level>
+<text>Which SQL function counts the number of rows?</text>
+<options>
+<option>SUM()</option>
+<option>COUNT()</option>
+<option>AVG()</option>
+<option>MAX()</option>
+</options>
+<answer>COUNT()</answer>
+</question>
+<question id="10">
+<category>SQL</category>
+<level>Easy</level>
+<text>Which SQL clause sorts query results?</text>
+<options>
+<option>WHERE</option>
+<option>HAVING</option>
+<option>ORDER BY</option>
+<option>GROUP BY</option>
+</options>
+<answer>ORDER BY</answer>
+</question>
+<question id="11">
+<category>IT Basics</category>
+<level>Easy</level>
+<text>What does CPU stand for?</text>
+<options>
+<option>Central Processing Unit</option>
+<option>Computer Personal Unit</option>
+<option>Central Program Utility</option>
+<option>Control Processing User</option>
+</options>
+<answer>Central Processing Unit</answer>
+</question>
+<question id="12">
+<category>IT Basics</category>
+<level>Easy</level>
+<text>Which of these is an operating system?</text>
+<options>
+<option>HTML</option>
+<option>Windows</option>
+<option>MySQL</option>
+<option>Java</option>
+</options>
+<answer>Windows</answer>
+</question>
+<question id="13">
+<category>IT Basics</category>
+<level>Easy</level>
+<text>Which device is commonly used to enter text into a computer?</text>
+<options>
+<option>Monitor</option>
+<option>Speaker</option>
+<option>Keyboard</option>
+<option>Projector</option>
+</options>
+<answer>Keyboard</answer>
+</question>
+<question id="14">
+<category>IT Basics</category>
+<level>Easy</level>
+<text>What is RAM mainly used for while a computer is running?</text>
+<options>
+<option>Permanent file storage</option>
+<option>Temporary working memory</option>
+<option>Printing documents</option>
+<option>Connecting to Wi-Fi</option>
+</options>
+<answer>Temporary working memory</answer>
+</question>
+<question id="15">
+<category>IT Basics</category>
+<level>Easy</level>
+<text>Which device is commonly used to connect different networks?</text>
+<options>
+<option>Router</option>
+<option>Keyboard</option>
+<option>Scanner</option>
+<option>Printer</option>
+</options>
+<answer>Router</answer>
+</question>
+</quiz>
