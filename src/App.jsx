@@ -54,7 +54,7 @@ import AdminRoutes from "./admin/AdminRoutes";
 function App() {
   return (
     <BrowserRouter>
-      <Navbar />
+      <Navbar/>
 
       <Routes>
         <Route path="/" element={<Navigate to="/user" replace />} />
