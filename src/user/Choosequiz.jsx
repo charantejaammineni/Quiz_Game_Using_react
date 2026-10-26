@@ -16,9 +16,28 @@ function ChooseQuiz() {
 
         const allQuestions = await loadQuestions();
 
-        const updatedQuizzes = savedQuizzes.map((quiz) => {
-          const name = (quiz.name || "").toLowerCase();
+        // Use saved quizzes if available; otherwise build quizzes from XML.
+        let quizList = savedQuizzes;
 
+        if (quizList.length === 0) {
+          const categories = [
+            ...new Set(
+              allQuestions
+                .map((question) => question.category?.trim())
+                .filter(Boolean)
+            ),
+          ];
+
+          quizList = categories.map((category, index) => ({
+            id: `xml-${index + 1}`,
+            name: category,
+            category,
+            level: "All Levels",
+          }));
+        }
+
+        const updatedQuizzes = quizList.map((quiz) => {
+          const name = (quiz.name || "").toLowerCase();
           let category = quiz.category || "";
 
           if (name.includes("java") && !name.includes("javascript")) {
