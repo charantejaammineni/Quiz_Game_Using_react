@@ -1,16 +1,102 @@
-# React + Vite
+# QuizMaster – Online Quiz Application
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+QuizMaster is a web-based quiz application developed using React.js. It allows users to take quizzes, test their knowledge, view their scores, and track their quiz history. It also provides an admin portal to manage quizzes, questions, and users.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### User Portal
+- User registration and sign-in
+- View and select available quizzes
+- Answer multiple-choice questions
+- Calculate quiz scores and display results
+- View quiz history
+- View leaderboard rankings
+- Manage user profile
 
-## React Compiler
+### Admin Portal
+- Admin sign-in
+- Create and manage quizzes
+- Add, edit, and delete quiz questions
+- Manage users
+- View quiz results and reports
+- Access admin dashboard and other management pages
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Technologies Used
 
-## Expanding the ESLint configuration
+- **Frontend:** React.js, JavaScript, HTML5, CSS3
+- **Routing:** React Router
+- **Data Storage:** Browser `localStorage` and `sessionStorage`
+- **Question Data:** XML
+- **Development Tool:** Vite
+- **Version Control:** Git and GitHub
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Project Structure
+
+```text
+Quizmaster/
+├── public/
+│   └── data/
+│       └── questions.xml
+├── src/
+│   ├── admin/
+│   ├── components/
+│   ├── data/
+│   ├── user/
+│   ├── App.jsx
+│   ├── App.css
+│   └── main.jsx
+├── index.html
+├── package.json
+└── vite.config.js
+```
+
+## Getting Started
+
+### Prerequisites
+- Node.js
+- npm
+- Git
+
+### Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/charantejaammineni/Quiz_Game_Using_react.git
+   ```
+
+2. Navigate to the project folder:
+
+   ```bash
+   cd Quiz_Game_Using_react
+   ```
+
+3. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+4. Start the development server:
+
+   ```bash
+   npm run dev
+   ```
+
+5. Open the local URL displayed in the terminal in your browser.
+
+## Data Storage
+
+QuizMaster uses browser storage to save application data such as user information, quiz details, questions managed through the admin portal, and quiz results. XML is used to provide the initial quiz question data.
+
+**Note:** Browser storage is local to the website and browser. This project does not currently use a centralized backend database.
+
+## Learning Outcomes
+
+This project helped me practice:
+- Building reusable React components
+- Managing component state and side effects
+- Implementing navigation with React Router
+- Handling forms and user interactions
+- Working with XML and browser storage
+- Using Git and GitHub for version control
