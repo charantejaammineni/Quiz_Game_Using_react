@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { loadQuestions } from "../data/quizData";
 
 function UserHome() {
   const [availableQuizzes, setAvailableQuizzes] = useState(0);
@@ -8,53 +9,73 @@ function UserHome() {
   const [averageScore, setAverageScore] = useState(0);
 
   useEffect(() => {
-    // Get quizzes created in the Admin Portal
-    const savedQuizzes = JSON.parse(
-      localStorage.getItem("quizzes") || "[]"
-    );
+    async function loadDashboardData() {
+      try {
+        const savedQuizzes = JSON.parse(
+          localStorage.getItem("quizzes") || "[]"
+        );
 
-    setAvailableQuizzes(savedQuizzes.length);
+        const allQuestions = await loadQuestions();
 
-    // Get the currently logged-in user
-    let user = null;
+        // Count XML categories when no admin quizzes are saved.
+        const categories = [
+          ...new Set(
+            allQuestions
+              .map((question) => question.category?.trim())
+              .filter(Boolean)
+          ),
+        ];
 
-    try {
-      user = JSON.parse(sessionStorage.getItem("userLoggedIn"));
-    } catch {
-      user = null;
-    }
+        setAvailableQuizzes(
+          savedQuizzes.length > 0
+            ? savedQuizzes.length
+            : categories.length
+        );
+      } catch (error) {
+        console.error("Could not load quizzes:", error);
+        setAvailableQuizzes(0);
+      }
 
-    // Get quiz results
-    const savedResults = JSON.parse(
-      localStorage.getItem("quizResults") || "[]"
-    );
+      // Get the currently logged-in user
+      let user = null;
 
-    const userResults = savedResults.filter(
-      (result) => user && result.userId === user.id
-    );
+      try {
+        user = JSON.parse(sessionStorage.getItem("userLoggedIn"));
+      } catch {
+        user = null;
+      }
 
-    setCompletedQuizzes(userResults.length);
+      // Get quiz results
+      const savedResults = JSON.parse(
+        localStorage.getItem("quizResults") || "[]"
+      );
 
-    if (userResults.length > 0) {
-      const totalPercentage = userResults.reduce((total, result) => {
-        if (!result.totalQuestions) return total;
+      const userResults = savedResults.filter(
+        (result) => user && result.userId === user.id
+      );
 
-        return total +
-          (result.score / result.totalQuestions) * 100;
-      }, 0);
+      setCompletedQuizzes(userResults.length);
 
       const validResults = userResults.filter(
         (result) => result.totalQuestions > 0
       );
 
-      setAverageScore(
-        validResults.length > 0
-          ? Math.round(totalPercentage / validResults.length)
-          : 0
-      );
-    } else {
-      setAverageScore(0);
+      if (validResults.length > 0) {
+        const totalPercentage = validResults.reduce(
+          (total, result) =>
+            total + (result.score / result.totalQuestions) * 100,
+          0
+        );
+
+        setAverageScore(
+          Math.round(totalPercentage / validResults.length)
+        );
+      } else {
+        setAverageScore(0);
+      }
     }
+
+    loadDashboardData();
   }, []);
 
   return (
