@@ -49,7 +49,7 @@ function SignIn() {
     );
 
     alert("Sign in successful!");
-    navigate("/user");
+    navigate("/user", { replace: true });
   }
 
   return (
@@ -77,7 +77,7 @@ function SignIn() {
 
         {error && <p className="auth-error">{error}</p>}
 
-        <button type="submit">Sign In</button>
+        <button type="submit">Signin</button>
       </form>
 
       <p>

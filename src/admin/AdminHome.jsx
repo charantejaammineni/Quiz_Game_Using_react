@@ -12,8 +12,6 @@ function AdminHome() {
     averageScore: 0,
   });
 
-  const [currentSlide, setCurrentSlide] = useState(0);
-
   // Logout admin
   function handleLogout() {
     sessionStorage.removeItem("adminLoggedIn");
@@ -50,12 +48,16 @@ function AdminHome() {
       const totalPercentage = validResults.reduce(
         (total, result) =>
           total +
-          (Number(result.score) / Number(result.totalQuestions)) * 100,
+          (Number(result.score) /
+            Number(result.totalQuestions)) *
+            100,
         0
       );
 
       const averageScore = validResults.length
-        ? Math.round(totalPercentage / validResults.length)
+        ? Math.round(
+            totalPercentage / validResults.length
+          )
         : 0;
 
       setStats({
@@ -68,7 +70,7 @@ function AdminHome() {
 
     updateDashboard();
 
-    // Refresh periodically and when this tab becomes active
+    // Refresh statistics periodically and when the tab becomes active
     const interval = setInterval(updateDashboard, 2000);
 
     window.addEventListener("focus", updateDashboard);
@@ -81,26 +83,7 @@ function AdminHome() {
     };
   }, []);
 
-  // Featured quizzes for the carousel
-  const featuredQuizzes = [
-    {
-      title: "Java Basics",
-      description: "Test core Java concepts.",
-      category: "Programming",
-    },
-    {
-      title: "SQL Basics",
-      description: "Practice SQL queries and databases.",
-      category: "Database",
-    },
-    {
-      title: "JavaScript Basics",
-      description: "Explore JavaScript fundamentals.",
-      category: "Web Development",
-    },
-  ];
-
-  // Dynamic dashboard statistics
+  // Dashboard statistics
   const dashboardStats = [
     {
       title: "Total Quizzes",
@@ -130,148 +113,53 @@ function AdminHome() {
       <div className="admin-header">
         <div>
           <h1>Admin Dashboard</h1>
-          <p>Manage your QuizMaster application from here.</p>
+          <p>
+            Manage your QuizMaster application from here.
+          </p>
         </div>
 
         {/* Admin avatar and logout */}
         <div className="admin-header-actions">
-          <div className="admin-avatar">A</div>
+          {/* <div className="admin-avatar">A</div> */}
 
-          <button
+          {/* <button
             type="button"
             className="admin-logout-btn"
             onClick={handleLogout}
           >
             Logout
-          </button>
+          </button> */}
         </div>
       </div>
 
       <hr />
 
       {/* Statistics cards */}
-      
-<div className="admin-stats">
-  {dashboardStats.map((item) => (
-    <div
-      className="admin-stat-card"
-      key={item.title}
-      onClick={() => {
-        if (item.title === "Total Users") {
-          navigate("/admin/users");
-        }
-      }}
-      style={{
-        cursor: item.title === "Total Users" ? "pointer" : "default",
-      }}
-    >
-      <div className="stat-icon">{item.icon}</div>
-      <div>
-        <h3>{item.title}</h3>
-        <p>{item.value}</p>
-      </div>
-    </div>
-  ))}
-</div>
-
-
-      {/* Featured quiz carousel */}
-      <div className="admin-section">
-        <h2>Featured Quizzes</h2>
-
-        <div className="quiz-carousel">
-          <div className="carousel-content">
-            <span className="activity-badge">
-              {featuredQuizzes[currentSlide].category}
-            </span>
-
-            <h3>{featuredQuizzes[currentSlide].title}</h3>
-            <p>{featuredQuizzes[currentSlide].description}</p>
-          </div>
-
-          <div className="carousel-controls">
-            <button
-              type="button"
-              onClick={() =>
-                setCurrentSlide(
-                  (currentSlide - 1 + featuredQuizzes.length) %
-                    featuredQuizzes.length
-                )
+      <div className="admin-stats">
+        {dashboardStats.map((item) => (
+          <div
+            className="admin-stat-card"
+            key={item.title}
+            onClick={() => {
+              if (item.title === "Total Users") {
+                navigate("/admin/users");
               }
-            >
-              Previous
-            </button>
+            }}
+            style={{
+              cursor:
+                item.title === "Total Users"
+                  ? "pointer"
+                  : "default",
+            }}
+          >
+            <div className="stat-icon">{item.icon}</div>
 
-            <span>
-              {currentSlide + 1} / {featuredQuizzes.length}
-            </span>
-
-            <button
-              type="button"
-              onClick={() =>
-                setCurrentSlide(
-                  (currentSlide + 1) % featuredQuizzes.length
-                )
-              }
-            >
-              Next
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Overall performance */}
-      <div className="admin-section">
-        <h2>Overall Performance</h2>
-
-        <div className="progress-box">
-          <div className="progress-header">
-            <span>Average Quiz Score</span>
-            <span>{stats.averageScore}%</span>
-          </div>
-
-          <progress
-            value={stats.averageScore}
-            max="100"
-          ></progress>
-        </div>
-      </div>
-
-      {/* Recent activity */}
-      <div className="admin-section">
-        <h2>Recent Activity</h2>
-
-        <div className="activity-list">
-          <div className="activity-item">
-            <span className="activity-badge">Users</span>
             <div>
-              <strong>Registered Users</strong>
-              <p>
-                Total registered users: {stats.totalUsers}
-              </p>
+              <h3>{item.title}</h3>
+              <p>{item.value}</p>
             </div>
           </div>
-
-          <div className="activity-item">
-            <span className="activity-badge">Quizzes</span>
-            <div>
-              <strong>Available Quizzes</strong>
-              <p>
-                Total quizzes created: {stats.totalQuizzes}
-              </p>
-            </div>
-          </div>
-
-          <div className="activity-item">
-            <span className="activity-badge">Results</span>
-            <div>
-              <strong>Quiz Attempts</strong>
-              <p>
-                Total completed attempts: {stats.totalAttempts}
-              </p>
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
 
       {/* Quick actions */}
@@ -300,6 +188,63 @@ function AdminHome() {
           >
             View Reports
           </button>
+        </div>
+      </div>
+
+      {/* Overall performance */}
+      <div className="admin-section">
+        <h2>Overall Performance</h2>
+
+        <div className="progress-box">
+          <div className="progress-header">
+            <span>Average Quiz Score</span>
+            <span>{stats.averageScore}%</span>
+          </div>
+
+          <progress
+            value={stats.averageScore}
+            max="100"
+          ></progress>
+        </div>
+      </div>
+
+      {/* Recent activity */}
+      <div className="admin-section">
+        <h2>Recent Activity</h2>
+
+        <div className="activity-list">
+          <div className="activity-item">
+            <span className="activity-badge">Users</span>
+
+            <div>
+              <strong>Registered Users</strong>
+              <p>
+                Total registered users: {stats.totalUsers}
+              </p>
+            </div>
+          </div>
+
+          <div className="activity-item">
+            <span className="activity-badge">Quizzes</span>
+
+            <div>
+              <strong>Available Quizzes</strong>
+              <p>
+                Total quizzes created: {stats.totalQuizzes}
+              </p>
+            </div>
+          </div>
+
+          <div className="activity-item">
+            <span className="activity-badge">Results</span>
+
+            <div>
+              <strong>Quiz Attempts</strong>
+              <p>
+                Total completed attempts: {stats.totalAttempts}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

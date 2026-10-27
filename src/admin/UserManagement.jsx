@@ -3,28 +3,42 @@ import Breadcrumb from "../components/Breadcrumb";
 
 function UserManagement() {
   const defaultUsers = [
-    {
-      id: 1,
-      name: "Rahul",
-      email: "rahul@gmail.com",
-      role: "User",
-      status: "Active",
-    },
-    {
-      id: 2,
-      name: "Priya",
-      email: "priya@gmail.com",
-      role: "User",
-      status: "Active",
-    },
-    {
-      id: 3,
-      name: "Admin",
-      email: "admin@quizmaster.com",
-      role: "Admin",
-      status: "Active",
-    },
-  ];
+  {
+    id: 1,
+    name: "Rahul",
+    email: "rahul@gmail.com",
+    role: "User",
+    status: "Active",
+  },
+  {
+    id: 2,
+    name: "Priya",
+    email: "priya@gmail.com",
+    role: "User",
+    status: "Active",
+  },
+  {
+    id: 3,
+    name: "Arjun",
+    email: "arjun@gmail.com",
+    role: "User",
+    status: "Active",
+  },
+  {
+    id: 4,
+    name: "Sneha",
+    email: "sneha@gmail.com",
+    role: "User",
+    status: "Active",
+  },
+  {
+    id: 5,
+    name: "Admin",
+    email: "admin@quizmaster.com",
+    role: "Admin",
+    status: "Active",
+  },
+];
 
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
