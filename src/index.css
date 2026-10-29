@@ -107,3 +107,91 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+/* Login success popup */
+.login-popup {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #198754;
+  color: white;
+  padding: 14px 22px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 9999;
+  font-size: 15px;
+  animation: popupSlide 0.3s ease;
+}
+
+/* Logout confirmation overlay */
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+/* Confirmation box */
+.confirm-popup {
+  width: 320px;
+  max-width: calc(100% - 40px);
+  background: white;
+  color: #222;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  animation: popupSlide 0.3s ease;
+}
+
+.confirm-popup h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.confirm-popup p {
+  margin-bottom: 22px;
+  color: #555;
+}
+
+.confirm-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.confirm-buttons button {
+  border: none;
+  padding: 10px 22px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.confirm-ok {
+  background: #198754;
+  color: white;
+}
+
+.confirm-cancel {
+  background: #e5e7eb;
+  color: #222;
+}
+
+.confirm-buttons button:hover {
+  opacity: 0.85;
+}
+
+@keyframes popupSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

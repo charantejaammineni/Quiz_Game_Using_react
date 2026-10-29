@@ -32,15 +32,25 @@ function Navbar() {
 
   function handleUserLogout() {
     sessionStorage.removeItem("userLoggedIn");
+    sessionStorage.setItem(
+      "logoutMessage","Successfully logged out!!!"
+    );
     setUser(null);
     navigate("/user/signin", { replace: true });
   }
 
   function handleAdminLogout() {
-    sessionStorage.removeItem("adminLoggedIn");
-    setIsAdminLoggedIn(false);
-    navigate("/admin/signin", { replace: true });
-  }
+  sessionStorage.removeItem("adminLoggedIn");
+
+  sessionStorage.setItem(
+    "logoutMessage",
+    "Successfully logged out!"
+  );
+
+  setIsAdminLoggedIn(false);
+
+  navigate("/admin/signin", { replace: true });
+}
 
   return (
     <nav className="main-navbar">

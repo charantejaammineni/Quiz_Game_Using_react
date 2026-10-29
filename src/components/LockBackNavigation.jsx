@@ -1,12 +1,11 @@
 
-import { useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLayoutEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 function LockBackNavigation() {
   const location = useLocation();
-  const navigate = useNavigate();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const currentPath = location.pathname;
 
     const isDashboard =
@@ -43,7 +42,8 @@ function LockBackNavigation() {
 
     if (!isDashboard || !session) return;
 
-    // Add one guard when entering the dashboard.
+    let restoringHistory = false;
+
     window.history.pushState(
       { dashboardGuard: true },
       "",
@@ -52,10 +52,11 @@ function LockBackNavigation() {
 
     
 function handleBack() {
-  const session = getSession();
-  if (!session) return;
+  const currentSession = getSession();
 
-  // Immediately restore the dashboard entry.
+  if (!currentSession) return;
+
+  // Restore the dashboard entry before showing confirmation.
   window.history.pushState(
     { dashboardGuard: true },
     "",
@@ -67,7 +68,7 @@ function handleBack() {
   );
 
   if (shouldLeave) {
-    if (session === "admin") {
+    if (currentSession === "admin") {
       sessionStorage.removeItem("adminLoggedIn");
       window.location.replace("/admin/signin");
     } else {
@@ -83,9 +84,9 @@ function handleBack() {
     return () => {
       window.removeEventListener("popstate", handleBack);
     };
-  }, [location.pathname, navigate]);
+  }, [location.pathname]);
 
   return null;
 }
 
-export default LockBackNavigation;
+export default LockBackNavigation;  

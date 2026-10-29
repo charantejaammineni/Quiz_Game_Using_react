@@ -5,13 +5,16 @@ import LockBackNavigation from "./components/LockBackNavigation";
 import SessionTimeout from "./components/SessionTimeout";
 import UserRoutes from "./user/UserRoutes";
 import AdminRoutes from "./admin/AdminRoutes";
+import LogoutMessage from "./components/LogoutMessage";
 
 function App() {
   return (
     <BrowserRouter>
       <LockBackNavigation />
       <SessionTimeout />
+      <LogoutMessage/>
       <Navbar />
+
 
       <Routes>
         <Route path="/" element={<Navigate to="/user" replace />} />
