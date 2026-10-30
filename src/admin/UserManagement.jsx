@@ -61,7 +61,7 @@ function UserManagement() {
       localStorage.getItem("users") || "[]"
     );
 
-    if (savedUsers.length === 0) {
+    if (savedUsers.length === 1) {
       localStorage.setItem(
         "users",
         JSON.stringify(defaultUsers)
