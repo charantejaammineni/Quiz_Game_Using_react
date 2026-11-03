@@ -86,7 +86,7 @@ function Navbar() {
                 </button>
               </>
             ) : (
-              <Link to="/user/signin">User Signin</Link>
+              <Link to="/user/signin" className="admin-link">User Signin</Link>
             )}
 
             {!user && (
