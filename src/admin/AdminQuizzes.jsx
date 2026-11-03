@@ -1,77 +1,105 @@
+
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 function AdminQuizzes() {
-  const defaultQuizzes = [
-    {
-      id: 1,
-      name: "Java Basics",
-      category: "Java",
-      level: "Easy",
-      questions: 10,
-    },
-    {
-      id: 2,
-      name: "SQL Basics",
-      category: "SQL",
-      level: "Easy",
-      questions: 8,
-    },
-    {
-      id: 3,
-      name: "JavaScript Basics",
-      category: "JavaScript",
-      level: "Medium",
-      questions: 12,
-    },
-  ];
-
   const [quizzes, setQuizzes] = useState([]);
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
 
-  useEffect(() => {
-  const savedQuizzes = JSON.parse(
-    localStorage.getItem("quizzes") || "[]"
-  );
+  async function loadQuizzes() {
+    try {
+      const savedQuizzes = JSON.parse(
+        localStorage.getItem("quizzes") || "[]"
+      );
 
-  const quizzesInitialized =
-    localStorage.getItem("quizzesInitialized");
+      const savedQuestions = JSON.parse(
+        localStorage.getItem("questions") || "{}"
+      );
 
-  let quizzesToLoad = savedQuizzes;
+      const deletedQuestions = JSON.parse(
+        localStorage.getItem("deletedXmlQuestions") || "{}"
+      );
 
-  if (!quizzesInitialized) {
-    localStorage.setItem(
-      "quizzes",
-      JSON.stringify(defaultQuizzes)
-    );
+      // Load questions from XML
+      const response = await fetch("/data/questions.xml");
 
-    localStorage.setItem(
-      "quizzesInitialized",
-      "true"
-    );
+      if (!response.ok) {
+        throw new Error("Unable to load questions.xml");
+      }
 
-    quizzesToLoad = defaultQuizzes;
+      const xmlText = await response.text();
+
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+
+      const xmlQuestions = Array.from(
+        xmlDoc.querySelectorAll("question")
+      ).map((item) => ({
+        id: Number(item.getAttribute("id")),
+        category: item.querySelector("category")?.textContent.trim() || ""
+      }));
+
+      const updatedQuizzes = savedQuizzes.map((quiz) => {
+        // Match IT basic quiz with IT Basics XML category
+        let xmlCategory = quiz.category;
+
+        if (quiz.name.toLowerCase().includes("it")) {
+          xmlCategory = "IT Basics";
+        }
+
+        // Get XML questions for this quiz
+        const quizXmlQuestions = xmlQuestions.filter(
+          (item) =>
+            item.category.toLowerCase() ===
+            xmlCategory.toLowerCase()
+        );
+
+        // Get locally saved questions
+        const localQuestions = savedQuestions[String(quiz.id)] || [];
+
+        // Get deleted XML question IDs
+        const deletedIds = deletedQuestions[String(quiz.id)] || [];
+
+        // Combine questions without duplicates
+        const questionMap = new Map();
+
+        quizXmlQuestions
+          .filter((item) => !deletedIds.includes(item.id))
+          .forEach((item) => {
+            questionMap.set(item.id, item);
+          });
+
+        localQuestions.forEach((item) => {
+          questionMap.set(item.id, item);
+        });
+
+        return {
+          ...quiz,
+          questions: questionMap.size
+        };
+      });
+
+      localStorage.setItem(
+        "quizzes",
+        JSON.stringify(updatedQuizzes)
+      );
+
+      setQuizzes(updatedQuizzes);
+    } catch (error) {
+      console.error("Error loading quiz questions:", error);
+    }
   }
 
-  const savedQuestions = JSON.parse(
-    localStorage.getItem("questions") || "{}"
-  );
+  useEffect(() => {
+    loadQuizzes();
 
-  const updatedQuizzes = quizzesToLoad.map((quiz) => ({
-    ...quiz,
-    questions: (
-      savedQuestions[String(quiz.id)] || []
-    ).length,
-  }));
+    window.addEventListener("questionsUpdated", loadQuizzes);
 
-  localStorage.setItem(
-    "quizzes",
-    JSON.stringify(updatedQuizzes)
-  );
-
-  setQuizzes(updatedQuizzes);
-}, []);
+    return () => {
+      window.removeEventListener("questionsUpdated", loadQuizzes);
+    };
+  }, []);
 
   const filteredQuizzes = quizzes.filter((quiz) =>
     quiz.name.toLowerCase().includes(search.toLowerCase())
@@ -112,6 +140,7 @@ function AdminQuizzes() {
       <table>
         <thead>
           <tr>
+            <th>S.No</th>
             <th>ID</th>
             <th>Quiz Name</th>
             <th>Category</th>
@@ -122,53 +151,40 @@ function AdminQuizzes() {
         </thead>
 
         <tbody>
-          {filteredQuizzes.map((quiz) => (
+          {filteredQuizzes.map((quiz, index) => (
             <tr key={quiz.id}>
+              <td>{index + 1}</td>
               <td>{quiz.id}</td>
-
               <td>{quiz.name}</td>
 
               <td>
-                <span className="tag">
-                  {quiz.category}
-                </span>
+                <span className="tag">{quiz.category}</span>
               </td>
 
               <td>
-                <span className="tag">
-                  {quiz.level}
-                </span>
+                <span className="tag">{quiz.level}</span>
               </td>
 
               <td>{quiz.questions}</td>
 
               <td>
                 <button
-                  title="Manage Questions"
                   onClick={() =>
-                    navigate(
-                      `/admin/quizzes/${quiz.id}/questions`
-                    )
+                    navigate(`/admin/quizzes/${quiz.id}/questions`)
                   }
                 >
                   Manage
                 </button>
 
                 <button
-                  title="Edit Quiz"
                   onClick={() =>
-                    navigate(
-                      `/admin/quizzes/add?edit=${quiz.id}`
-                    )
+                    navigate(`/admin/quizzes/add?edit=${quiz.id}`)
                   }
                 >
                   Edit
                 </button>
 
-                <button
-                  title="Delete Quiz"
-                  onClick={() => handleDelete(quiz.id)}
-                >
+                <button onClick={() => handleDelete(quiz.id)}>
                   Delete
                 </button>
               </td>

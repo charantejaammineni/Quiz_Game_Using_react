@@ -22,20 +22,92 @@ function QuestionManagement() {
   const [availableChecked, setAvailableChecked] = useState([]);
   const [selectedChecked, setSelectedChecked] = useState([]);
 
+  const [xmlQuestionIds, setXmlQuestionIds] = useState([]);
   // Load questions for this quiz
   useEffect(() => {
-    const savedQuestions = JSON.parse(
-      localStorage.getItem("questions") || "{}"
-    );
+  async function loadQuestions() {
+    try {
+      const response = await fetch("/data/questions.xml");
+      const xmlText = await response.text();
 
-    const loadedQuestions = savedQuestions[quizId] || [];
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(xmlText, "text/xml");
 
-    setQuestions(loadedQuestions);
-    setSelectedIds([]);
-    setSelectedQuestions([]);
-    setAvailableChecked([]);
-    setSelectedChecked([]);
-  }, [quizId]);
+      const allXmlQuestions = Array.from(
+        xmlDoc.querySelectorAll("question")
+      ).map((item) => ({
+        id: Number(item.getAttribute("id")),
+        category: item.querySelector("category")?.textContent.trim() || "",
+        level: item.querySelector("level")?.textContent.trim() || "",
+        text: item.querySelector("text")?.textContent.trim() || "",
+        options: Array.from(
+          item.querySelectorAll("options option")
+        ).map((option) => option.textContent.trim()),
+        answer: item.querySelector("answer")?.textContent.trim() || "",
+      }));
+
+      const savedQuizzes = JSON.parse(
+        localStorage.getItem("quizzes") || "[]"
+      );
+
+      const currentQuiz = savedQuizzes.find(
+        (quiz) => Number(quiz.id) === Number(quizId)
+      );
+
+      // Identify the XML category for this quiz
+      let xmlCategory = currentQuiz?.category || "";
+
+      if (currentQuiz?.name.toLowerCase().includes("it")) {
+        xmlCategory = "IT Basics";
+      }
+
+      const quizXmlQuestions = allXmlQuestions.filter(
+        (item) =>
+          item.category.toLowerCase() === xmlCategory.toLowerCase()
+      );
+
+      setXmlQuestionIds(quizXmlQuestions.map((item) => item.id));
+
+      const savedQuestions = JSON.parse(
+        localStorage.getItem("questions") || "{}"
+      );
+
+      const deletedQuestions = JSON.parse(
+        localStorage.getItem("deletedXmlQuestions") || "{}"
+      );
+
+      const deletedIds = deletedQuestions[quizId] || [];
+      const localQuestions = savedQuestions[quizId] || [];
+
+      // Remove deleted XML questions
+      const availableXmlQuestions = quizXmlQuestions.filter(
+        (item) => !deletedIds.includes(item.id)
+      );
+
+      // Merge XML questions and locally saved questions by ID
+      const mergedQuestions = new Map();
+
+      availableXmlQuestions.forEach((item) => {
+        mergedQuestions.set(item.id, item);
+      });
+
+      localQuestions.forEach((item) => {
+        mergedQuestions.set(item.id, item);
+      });
+
+      setQuestions(Array.from(mergedQuestions.values()));
+
+      setSelectedIds([]);
+      setSelectedQuestions([]);
+      setAvailableChecked([]);
+      setSelectedChecked([]);
+    } catch (error) {
+      console.error("Error loading XML questions:", error);
+    }
+  }
+
+  loadQuestions();
+}, [quizId]);
 
   function handleEdit(item) {
     setQuestion(item.text);
@@ -62,35 +134,52 @@ function QuestionManagement() {
   }
 
   function saveQuestions(updatedQuestions) {
-    const savedQuestions = JSON.parse(
-      localStorage.getItem("questions") || "{}"
-    );
+  const savedQuestions = JSON.parse(
+    localStorage.getItem("questions") || "{}"
+  );
 
-    savedQuestions[quizId] = updatedQuestions;
+  // Save the current questions for this quiz
+  savedQuestions[quizId] = updatedQuestions;
 
-    localStorage.setItem(
-      "questions",
-      JSON.stringify(savedQuestions)
-    );
+  localStorage.setItem(
+    "questions",
+    JSON.stringify(savedQuestions)
+  );
 
-    setQuestions(updatedQuestions);
+  // Track XML questions deleted by the admin
+  const deletedQuestions = JSON.parse(
+    localStorage.getItem("deletedXmlQuestions") || "{}"
+  );
 
-    // Update the question count in Quiz Management
-    const savedQuizzes = JSON.parse(
-      localStorage.getItem("quizzes") || "[]"
-    );
+  deletedQuestions[quizId] = xmlQuestionIds.filter(
+    (id) => !updatedQuestions.some((item) => item.id === id)
+  );
 
-    const updatedQuizzes = savedQuizzes.map((quiz) =>
-      Number(quiz.id) === Number(quizId)
-        ? { ...quiz, questions: updatedQuestions.length }
-        : quiz
-    );
+  localStorage.setItem(
+    "deletedXmlQuestions",
+    JSON.stringify(deletedQuestions)
+  );
 
-    localStorage.setItem(
-      "quizzes",
-      JSON.stringify(updatedQuizzes)
-    );
-  }
+  setQuestions(updatedQuestions);
+
+  // Update quiz count
+  const savedQuizzes = JSON.parse(
+    localStorage.getItem("quizzes") || "[]"
+  );
+
+  const updatedQuizzes = savedQuizzes.map((quiz) =>
+    Number(quiz.id) === Number(quizId)
+      ? { ...quiz, questions: updatedQuestions.length }
+      : quiz
+  );
+
+  localStorage.setItem(
+    "quizzes",
+    JSON.stringify(updatedQuizzes)
+  );
+
+  window.dispatchEvent(new Event("questionsUpdated"));
+}
 
   function handleSubmit(event) {
     event.preventDefault();
