@@ -1,69 +1,56 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { loadQuestions } from "../data/quizData";
+
+const QUIZZES_API = "http://localhost:5000/api/quizzes";
+const QUESTIONS_API = "http://localhost:5000/api/questions";
 
 function ChooseQuiz() {
   const [quizzes, setQuizzes] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     async function loadQuizData() {
       try {
-        const savedQuizzes = JSON.parse(
-          localStorage.getItem("quizzes") || "[]"
-        );
+        setLoading(true);
 
-        const allQuestions = await loadQuestions();
+        const [quizzesRes, questionsRes] = await Promise.all([
+          fetch(QUIZZES_API),
+          fetch(QUESTIONS_API),
+        ]);
 
-        // Use saved quizzes if available; otherwise build quizzes from XML.
-        let quizList = savedQuizzes;
-
-        if (quizList.length === 0) {
-          const categories = [
-            ...new Set(
-              allQuestions
-                .map((question) => question.category?.trim())
-                .filter(Boolean)
-            ),
-          ];
-
-          quizList = categories.map((category, index) => ({
-            id: `xml-${index + 1}`,
-            name: category,
-            category,
-            level: "All Levels",
-          }));
+        if (!quizzesRes.ok) {
+          throw new Error("Failed to load quizzes from server");
         }
 
-        const updatedQuizzes = quizList.map((quiz) => {
-          const name = (quiz.name || "").toLowerCase();
-          let category = quiz.category || "";
+        const quizzesData = await quizzesRes.json();
+        const allQuestions = questionsRes.ok ? await questionsRes.json() : [];
 
-          if (name.includes("java") && !name.includes("javascript")) {
-            category = "Java";
-          } else if (name.includes("sql")) {
-            category = "SQL";
-          } else if (name.includes("it")) {
-            category = "IT Basics";
-          }
-
-          const questionCount = allQuestions.filter(
-            (question) =>
-              question.category?.trim().toLowerCase() ===
-              category.trim().toLowerCase()
-          ).length;
+        // Count questions strictly by quizId, with fallback only for seed quizzes
+        const updatedQuizzes = quizzesData.map((quiz) => {
+          const matchingQuestions = allQuestions.filter((q) => {
+            if (q.quizId !== undefined && q.quizId !== null && String(q.quizId).trim() !== "") {
+              return String(q.quizId) === String(quiz.id);
+            }
+            if (String(quiz.id) === "1") return (q.category || "").toLowerCase() === "java";
+            if (String(quiz.id) === "2") return (q.category || "").toLowerCase() === "sql";
+            if (String(quiz.id) === "3") return (q.category || "").toLowerCase().includes("it basic");
+            return false;
+          });
 
           return {
             ...quiz,
-            category,
-            questions: questionCount,
+            name: quiz.name || quiz.title,
+            category: quiz.category || "General",
+            questions: matchingQuestions.length,
           };
         });
 
         setQuizzes(updatedQuizzes);
       } catch (error) {
         console.error("Could not load quiz questions:", error);
+      } finally {
+        setLoading(false);
       }
     }
 
@@ -71,10 +58,11 @@ function ChooseQuiz() {
   }, []);
 
   function handleStartQuiz(quiz) {
+    const quizTitle = quiz.name || quiz.title || quiz.category;
     navigate(
       `/user/quiz?quizId=${quiz.id}&category=${encodeURIComponent(
         quiz.category
-      )}`
+      )}&title=${encodeURIComponent(quizTitle)}`
     );
   }
 
@@ -86,14 +74,16 @@ function ChooseQuiz() {
       </section>
 
       <section className="dashboard-grid">
-        {quizzes.length === 0 ? (
+        {loading ? (
+          <p>Loading available quizzes...</p>
+        ) : quizzes.length === 0 ? (
           <p>No quizzes available right now.</p>
         ) : (
           quizzes.map((quiz) => (
             <div className="dashboard-card" key={quiz.id}>
               <h3>{quiz.name}</h3>
               <p>Category: {quiz.category}</p>
-              <p>Difficulty: {quiz.level}</p>
+              <p>Difficulty: {quiz.level || "Easy"}</p>
               <p>Questions: {quiz.questions}</p>
 
               <button

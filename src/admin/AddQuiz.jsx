@@ -1,166 +1,202 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
+const QUIZZES_API = "http://localhost:5000/api/quizzes";
+
 function AddQuiz() {
   const navigate = useNavigate();
-
   const [searchParams] = useSearchParams();
+
   const editId = searchParams.get("edit");
+
   const [quizName, setQuizName] = useState("");
   const [category, setCategory] = useState("");
+  const [customCategory, setCustomCategory] = useState("");
+  const [isCustom, setIsCustom] = useState(false);
   const [level, setLevel] = useState("Easy");
 
+  // 1. If in Edit mode, fetch existing quiz data from API
   useEffect(() => {
-  // Loads the quiz details when editing
-  if (editId) {
-    const savedQuizzes = JSON.parse(
-      localStorage.getItem("quizzes") || "[]"
-    );
+    if (!editId) return;
 
-    const quiz = savedQuizzes.find(
-      (item) => item.id === Number(editId)
-    );
+    async function loadQuizForEdit() {
+      try {
+        const response = await fetch(QUIZZES_API);
+        if (!response.ok) throw new Error("Failed to fetch quizzes");
 
-    if (quiz) {
-      setQuizName(quiz.name);
-      setCategory(quiz.category);
-      setLevel(quiz.level);
-    }
-  }
-}, [editId]);
+        const data = await response.json();
+        const quiz = data.find((item) => String(item.id) === String(editId));
 
- function handleSubmit(event) {
-  event.preventDefault();
+        if (quiz) {
+          setQuizName(quiz.name || quiz.title || "");
+          setLevel(quiz.level || "Easy");
 
-  // Gets existing quizzes from localStorage
-  const savedQuizzes = JSON.parse(
-    localStorage.getItem("quizzes") || "[]"
-  );
-
-  // If editId exists, update the existing quiz
-  if (editId) {
-    const updatedQuizzes = savedQuizzes.map((quiz) => {
-      if (quiz.id === Number(editId)) {
-        return {
-          ...quiz,
-          name: quizName,
-          category: category,
-          level: level,
-        };
+          const currentCat = quiz.category || "";
+          if (["Java", "SQL", "IT Basics"].includes(currentCat)) {
+            setCategory(currentCat);
+            setIsCustom(false);
+            setCustomCategory("");
+          } else if (currentCat) {
+            setCategory("Other");
+            setIsCustom(true);
+            setCustomCategory(currentCat);
+          }
+        }
+      } catch (error) {
+        console.error("Error loading quiz for editing:", error);
       }
+    }
 
-      return quiz;
-    });
+    loadQuizForEdit();
+  }, [editId]);
 
-    localStorage.setItem(
-      "quizzes",
-      JSON.stringify(updatedQuizzes)
-    );
+  // 2. Add or Update Quiz via API
+  async function handleSubmit(event) {
+    event.preventDefault();
 
-    alert("Quiz updated successfully");
-  } else {
-    // Creates the next simple sequential quiz ID
-    const newId =
-      savedQuizzes.length > 0
-        ? Math.max(
-            ...savedQuizzes.map((quiz) => Number(quiz.id))
-          ) + 1
-        : 4;
+    const finalCategory = isCustom ? customCategory.trim() : category.trim();
 
-    // Creates a new quiz
-    const newQuiz = {
-      id: newId,
-      name: quizName,
-      category: category,
+    if (!quizName.trim() || !finalCategory) {
+      alert("Please fill in all required fields!");
+      return;
+    }
+
+    const quizPayload = {
+      name: quizName.trim(),
+      title: quizName.trim(),
+      category: finalCategory,
       level: level,
       questions: 0,
+      totalQuestions: 0,
     };
 
-    // Adds the new quiz
-    savedQuizzes.push(newQuiz);
+    try {
+      if (editId) {
+        const response = await fetch(`${QUIZZES_API}/${editId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(quizPayload),
+        });
 
-    // Saves the updated list
-    localStorage.setItem(
-      "quizzes",
-      JSON.stringify(savedQuizzes)
-    );
+        if (!response.ok) {
+          const errData = await response.json();
+          throw new Error(errData.error || "Failed to update quiz");
+        }
 
-    alert("Quiz added successfully");
+        alert("Quiz updated successfully");
+      } else {
+        const response = await fetch(QUIZZES_API, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(quizPayload),
+        });
+
+        if (!response.ok) {
+          const errData = await response.json();
+          throw new Error(errData.error || "Failed to add quiz");
+        }
+
+        alert("Quiz added successfully");
+      }
+
+      navigate("/admin/quizzes");
+    } catch (error) {
+      alert(error.message);
+    }
   }
 
-  // Returns to the quiz management page
-  navigate("/admin/quizzes");
-}
-return (
-  <div className="admin-page add-quiz-page">
-    {/* Page heading */}
-    <h1>{editId ? "Edit Quiz" : "Add Quiz"}</h1>
-    <p className="add-quiz-subtitle">
-      {editId
-        ? "Update the details of your quiz."
-        : "Create a new quiz by filling in the details below."}
-    </p>
+  return (
+    <div className="admin-page add-quiz-page">
+      <h1>{editId ? "Edit Quiz" : "Add Quiz"}</h1>
 
-    {/* Quiz form */}
-    <form className="add-quiz-form" onSubmit={handleSubmit}>
-      <div className="form-field">
-        <label htmlFor="quizName">Quiz Name</label>
-        <input
-          id="quizName"
-          type="text"
-          value={quizName}
-          onChange={(event) => setQuizName(event.target.value)}
-          placeholder="Enter quiz name"
-          required
-        />
-      </div>
+      <p className="add-quiz-subtitle">
+        {editId
+          ? "Update the details of your quiz."
+          : "Create a new quiz by filling in the details below."}
+      </p>
 
-      <div className="form-field">
-        <label htmlFor="category">Category</label>
-        <select
-          id="category"
-          value={category}
-          onChange={(event) => setCategory(event.target.value)}
-          required
-        >
-          <option value="">Select Category</option>
-          <option value="Java">Java</option>
-          <option value="JavaScript">JavaScript</option>
-          <option value="SQL">SQL</option>
-          <option value="React">React</option>
-        </select>
-      </div>
+      <form className="add-quiz-form" onSubmit={handleSubmit}>
+        <div className="form-field">
+          <label htmlFor="quizName">Quiz Name</label>
+          <input
+            id="quizName"
+            type="text"
+            value={quizName}
+            onChange={(event) => setQuizName(event.target.value)}
+            placeholder="Enter quiz name"
+            required
+          />
+        </div>
 
-      <div className="form-field">
-        <label htmlFor="level">Difficulty Level</label>
-        <select
-          id="level"
-          value={level}
-          onChange={(event) => setLevel(event.target.value)}
-        >
-          <option value="Easy">Easy</option>
-          <option value="Medium">Medium</option>
-          <option value="Hard">Hard</option>
-        </select>
-      </div>
+        <div className="form-field">
+          <label htmlFor="category">Category</label>
+          <select
+            id="category"
+            value={isCustom ? "Other" : category}
+            onChange={(event) => {
+              const val = event.target.value;
+              if (val === "Other") {
+                setIsCustom(true);
+                setCategory("Other");
+              } else {
+                setIsCustom(false);
+                setCategory(val);
+                setCustomCategory("");
+              }
+            }}
+            required
+          >
+            <option value="">Select Category</option>
+            <option value="Java">Java</option>
+            <option value="SQL">SQL</option>
+            <option value="IT Basics">IT Basics</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
 
-      {/* Form actions */}
-      <div className="add-quiz-actions">
-        <button type="submit" className="save-quiz-button">
-          {editId ? "Update Quiz" : "Save Quiz"}
-        </button>
+        {isCustom && (
+          <div className="form-field">
+            <label htmlFor="customCategory">Custom Category Name</label>
+            <input
+              id="customCategory"
+              type="text"
+              value={customCategory}
+              onChange={(event) => setCustomCategory(event.target.value)}
+              placeholder="e.g. Python, React, Web Development"
+              required
+            />
+          </div>
+        )}
 
-        <button
-          type="button"
-          className="cancel-quiz-button"
-          onClick={() => navigate("/admin/quizzes")}
-        >
-          Cancel
-        </button>
-      </div>
-    </form>
-  </div>
-);
+        <div className="form-field">
+          <label htmlFor="level">Difficulty Level</label>
+          <select
+            id="level"
+            value={level}
+            onChange={(event) => setLevel(event.target.value)}
+          >
+            <option value="Easy">Easy</option>
+            <option value="Medium">Medium</option>
+            <option value="Hard">Hard</option>
+          </select>
+        </div>
+
+        <div className="add-quiz-actions">
+          <button type="submit" className="save-quiz-button">
+            {editId ? "Update Quiz" : "Save Quiz"}
+          </button>
+
+          <button
+            type="button"
+            className="cancel-quiz-button"
+            onClick={() => navigate("/admin/quizzes")}
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  );
 }
 
 export default AddQuiz;

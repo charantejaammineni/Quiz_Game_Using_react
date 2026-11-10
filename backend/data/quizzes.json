@@ -1,0 +1,32 @@
+[
+  {
+    "id": "1",
+    "name": "Java Fundamentals",
+    "title": "Java Fundamentals",
+    "category": "Java",
+    "level": "Easy",
+    "questions": 5,
+    "totalQuestions": 5,
+    "timeLimit": 10
+  },
+  {
+    "id": "2",
+    "name": "SQL Basics",
+    "title": "SQL Basics",
+    "category": "SQL",
+    "level": "Easy",
+    "questions": 5,
+    "totalQuestions": 5,
+    "timeLimit": 10
+  },
+  {
+    "id": "3",
+    "name": "IT Basics & Computing",
+    "title": "IT Basics & Computing",
+    "category": "IT Basics",
+    "level": "Easy",
+    "questions": 5,
+    "totalQuestions": 5,
+    "timeLimit": 10
+  }
+]

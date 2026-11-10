@@ -1,53 +1,69 @@
-
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+
+const RESULTS_API = "http://localhost:5000/api/results";
 
 function Profile() {
   const navigate = useNavigate();
+  const [quizzesCompleted, setCompletedQuizzes] = useState(0);
+  const [averageScore, setAverageScore] = useState(0);
 
   let user = null;
-
   try {
     user = JSON.parse(sessionStorage.getItem("userLoggedIn"));
   } catch {
     user = null;
   }
 
-  // Get completed quiz results
-  let allResults = [];
+  useEffect(() => {
+    if (!user) {
+      navigate("/user/signin", { replace: true });
+      return;
+    }
 
-  try {
-    allResults = JSON.parse(
-      localStorage.getItem("quizResults") || "[]"
-    );
-  } catch {
-    allResults = [];
-  }
+    async function loadStats() {
+      try {
+        const response = await fetch(RESULTS_API);
+        if (!response.ok) return;
 
-  // Get results of the logged-in user
-  const userResults = allResults.filter(
-    (result) => String(result.userId) === String(user?.id)
-  );
+        const allResults = await response.json();
 
-  // Calculate completed quizzes
-  const quizzesCompleted = userResults.length;
+        // Filter results belonging to the logged-in user
+        const userResults = allResults.filter(
+          (result) =>
+            String(result.userId) === String(user.id) ||
+            (result.username &&
+              result.username.toLowerCase() ===
+                (user.name || user.username || "").toLowerCase()) ||
+            (result.userEmail &&
+              result.userEmail.toLowerCase() ===
+                (user.email || "").toLowerCase())
+        );
 
-  // Calculate average score
-  const totalPercentage = userResults.reduce(
-    (total, result) => {
-      if (Number(result.totalQuestions) > 0) {
-        return total +
-          (Number(result.score) / Number(result.totalQuestions)) * 100;
+        setCompletedQuizzes(userResults.length);
+
+        const validResults = userResults.filter(
+          (result) => Number(result.totalQuestions) > 0
+        );
+
+        if (validResults.length > 0) {
+          const totalPercentage = validResults.reduce(
+            (total, result) =>
+              total +
+              (Number(result.score) / Number(result.totalQuestions)) * 100,
+            0
+          );
+          setAverageScore(Math.round(totalPercentage / validResults.length));
+        } else {
+          setAverageScore(0);
+        }
+      } catch (error) {
+        console.error("Failed to load user profile statistics:", error);
       }
+    }
 
-      return total;
-    },
-    0
-  );
-
-  const averageScore =
-    quizzesCompleted > 0
-      ? Math.round(totalPercentage / quizzesCompleted)
-      : 0;
+    loadStats();
+  }, [user?.id, user?.name, user?.username, user?.email, navigate]);
 
   function handleLogout() {
     sessionStorage.removeItem("userLoggedIn");

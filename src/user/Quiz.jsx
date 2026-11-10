@@ -1,7 +1,8 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { loadQuestions } from "../data/quizData";
+
+const QUESTIONS_API = "http://localhost:5000/api/questions";
+const RESULTS_API = "http://localhost:5000/api/results";
 
 function Quiz() {
   const navigate = useNavigate();
@@ -9,6 +10,7 @@ function Quiz() {
 
   const category = searchParams.get("category");
   const quizId = searchParams.get("quizId");
+  const quizTitle = searchParams.get("title") || category || "General Quiz";
 
   const [questions, setQuestions] = useState([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -16,42 +18,53 @@ function Quiz() {
   const [score, setScore] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  // Load questions for the selected category
+  // Load questions specifically linked to this quizId
   useEffect(() => {
     setLoading(true);
 
-    loadQuestions()
-      .then((data) => {
-        const filteredQuestions = category
-          ? data.filter(
-              (question) =>
-                question.category?.trim().toLowerCase() ===
-                category.trim().toLowerCase()
-            )
-          : data;
+    fetch(QUESTIONS_API)
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to load questions");
+        return res.json();
+      })
+      .then((allQuestions) => {
+        // Filter questions strictly belonging to this quizId
+        const matched = allQuestions.filter((q) => {
+          if (quizId && q.quizId !== undefined && q.quizId !== null && String(q.quizId).trim() !== "") {
+            return String(q.quizId) === String(quizId);
+          }
+          // Seed quiz fallbacks for IDs 1, 2, 3
+          if (String(quizId) === "1") return (q.category || "").toLowerCase() === "java";
+          if (String(quizId) === "2") return (q.category || "").toLowerCase() === "sql";
+          if (String(quizId) === "3") return (q.category || "").toLowerCase().includes("it basic");
 
-        setQuestions(filteredQuestions);
+          // Fallback if accessed only by category
+          if (category) return (q.category || "").toLowerCase() === category.toLowerCase();
+          return true;
+        });
+
+        setQuestions(matched);
         setCurrentQuestion(0);
         setSelectedAnswer("");
         setScore(0);
         setLoading(false);
       })
       .catch((error) => {
-        console.error(error);
+        console.error("Error fetching quiz questions:", error);
         setQuestions([]);
         setLoading(false);
       });
-  }, [category]);
+  }, [quizId, category]);
 
-  // Check the answer and move to the next question
-  function handleNext() {
+  // Handle answering and moving to next question or submitting
+  async function handleNext() {
     const question = questions[currentQuestion];
-
     if (!question || !selectedAnswer) return;
 
+    const correctAnswer = question.correctAnswer || question.answer;
     let newScore = score;
 
-    if (selectedAnswer === question.answer) {
+    if (selectedAnswer.trim() === String(correctAnswer).trim()) {
       newScore = score + 1;
       setScore(newScore);
     }
@@ -61,57 +74,61 @@ function Quiz() {
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     } else {
+      // Quiz complete - retrieve user information
       let user = null;
-
       try {
         user = JSON.parse(sessionStorage.getItem("userLoggedIn"));
       } catch {
         user = null;
       }
 
-      const savedResults = JSON.parse(
-        localStorage.getItem("quizResults") || "[]"
-      );
-
-      const result = {
-        id: Date.now(),
-        userId: user?.id ?? null,
-        userName: user?.name || "Guest",
+      const resultPayload = {
+        userId: user?.id || "guest",
+        username: user?.name || user?.username || "Guest User",
         userEmail: user?.email || "",
-        quizId: quizId,
-        quizName: category || "General Quiz",
+        quizId: quizId || "1",
+        quizTitle: quizTitle,
         category: category || "General",
         score: newScore,
         totalQuestions: questions.length,
-        date: new Date().toISOString(),
+        date: new Date().toISOString().split("T")[0],
       };
 
-      localStorage.setItem(
-        "quizResults",
-        JSON.stringify([...savedResults, result])
-      );
+      // Save to backend JSON database
+      try {
+        await fetch(RESULTS_API, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(resultPayload),
+        });
+      } catch (err) {
+        console.error("Failed to save result to server:", err);
+      }
 
+     // Navigate to result page, replacing the question history entry
       navigate("/user/result", {
+        replace: true,
         state: {
           score: newScore,
           total: questions.length,
-          userName: result.userName,
+          userName: resultPayload.username,
+          category: category,
+          quizId: quizId,
+          quizTitle: quizTitle,
         },
       });
     }
   }
 
   if (loading) {
-    return <p>Loading quiz...</p>;
+    return <p style={{ textAlign: "center", marginTop: "40px" }}>Loading quiz...</p>;
   }
 
   if (questions.length === 0) {
     return (
       <div className="quiz-page">
         <h2>No questions available</h2>
-        <p>
-          There are no questions for {category || "this quiz"} yet.
-        </p>
+        <p>There are no questions for {quizTitle} yet.</p>
         <button type="button" onClick={() => navigate("/user/quizzes")}>
           Back to Quizzes
         </button>
@@ -120,28 +137,27 @@ function Quiz() {
   }
 
   const question = questions[currentQuestion];
+  const questionTitle = question.question || question.text;
 
   return (
     <div className="quiz-page">
-      <h2>{category || "Quiz"} Quiz</h2>
+      <h2>{quizTitle}</h2>
 
       <p>
         Question {currentQuestion + 1} of {questions.length}
       </p>
 
-      <h1>{question.text}</h1>
+      <h1>{questionTitle}</h1>
 
       <div className="answer-list">
-        {question.options.map((option) => (
+        {(question.options || []).map((option) => (
           <label key={option} className="answer-option">
             <input
               type="radio"
               name="answer"
               value={option}
               checked={selectedAnswer === option}
-              onChange={(event) =>
-                setSelectedAnswer(event.target.value)
-              }
+              onChange={(event) => setSelectedAnswer(event.target.value)}
             />
             {option}
           </label>

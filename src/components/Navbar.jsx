@@ -33,34 +33,38 @@ function Navbar() {
   function handleUserLogout() {
     sessionStorage.removeItem("userLoggedIn");
     sessionStorage.setItem(
-      "logoutMessage","Successfully logged out!!!"
+      "logoutMessage",
+      "Successfully logged out!!!"
     );
     setUser(null);
     navigate("/user/signin", { replace: true });
   }
 
   function handleAdminLogout() {
-  sessionStorage.removeItem("adminLoggedIn");
+    sessionStorage.removeItem("adminLoggedIn");
 
-  sessionStorage.setItem(
-    "logoutMessage",
-    "Successfully logged out!"
-  );
+    sessionStorage.setItem(
+      "logoutMessage",
+      "Successfully logged out!"
+    );
 
-  setIsAdminLoggedIn(false);
+    setIsAdminLoggedIn(false);
 
-  navigate("/admin/signin", { replace: true });
-}
+    navigate("/admin/signin", { replace: true });
+  }
 
   return (
     <nav className="main-navbar">
-      {/* QuizMaster logo */}
-      <Link to="/user" className="logo">
-        QuizMaster
-      </Link>
+      {/* Admin logo is not clickable; user logo navigates home */}
+      {isAdminLoggedIn ? (
+        <span className="logo">QuizMaster</span>
+      ) : (
+        <Link to="/user" className="logo">
+          QuizMaster
+        </Link>
+      )}
 
       {isAdminLoggedIn ? (
-        /* Show only admin logout while admin is logged in */
         <div className="nav-links">
           <button type="button" onClick={handleAdminLogout}>
             Logout
@@ -68,7 +72,6 @@ function Navbar() {
         </div>
       ) : (
         <>
-          {/* Main navigation links */}
           <div className="nav-links">
             <Link to="/user">Home</Link>
             <Link to="/user/leaderboard">Leaderboard</Link>
@@ -76,7 +79,6 @@ function Navbar() {
             <Link to="/user/profile">Profile</Link>
           </div>
 
-          {/* User account links */}
           <div className="nav-links">
             {user ? (
               <>
@@ -86,12 +88,16 @@ function Navbar() {
                 </button>
               </>
             ) : (
-              <Link to="/user/signin" className="admin-link">User Signin</Link>
+              <Link to="/user/signin" className="admin-link">
+                User Signin
+              </Link>
             )}
 
             {!user && (
-  <Link to="/admin/signin" className="admin-link">Admin Signin</Link>
-              )}
+              <Link to="/admin/signin" className="admin-link">
+                Admin Signin
+              </Link>
+            )}
           </div>
         </>
       )}
@@ -100,3 +106,4 @@ function Navbar() {
 }
 
 export default Navbar;
+  

@@ -1,6 +1,9 @@
-
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import Breadcrumb from "../components/Breadcrumb";
+
+const QUIZZES_API = "http://localhost:5000/api/quizzes";
+const QUESTIONS_API = "http://localhost:5000/api/questions";
 
 function AdminQuizzes() {
   const [quizzes, setQuizzes] = useState([]);
@@ -9,119 +12,84 @@ function AdminQuizzes() {
 
   async function loadQuizzes() {
     try {
-      const savedQuizzes = JSON.parse(
-        localStorage.getItem("quizzes") || "[]"
-      );
+      const [quizzesRes, questionsRes] = await Promise.all([
+        fetch(QUIZZES_API),
+        fetch(QUESTIONS_API),
+      ]);
 
-      const savedQuestions = JSON.parse(
-        localStorage.getItem("questions") || "{}"
-      );
-
-      const deletedQuestions = JSON.parse(
-        localStorage.getItem("deletedXmlQuestions") || "{}"
-      );
-
-      // Load questions from XML
-      const response = await fetch("/data/questions.xml");
-
-      if (!response.ok) {
-        throw new Error("Unable to load questions.xml");
+      if (!quizzesRes.ok) {
+        throw new Error("Unable to load quizzes from server");
       }
 
-      const xmlText = await response.text();
+      const quizzesData = await quizzesRes.json();
+      const questionsData = questionsRes.ok ? await questionsRes.json() : [];
 
-      const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-
-      const xmlQuestions = Array.from(
-        xmlDoc.querySelectorAll("question")
-      ).map((item) => ({
-        id: Number(item.getAttribute("id")),
-        category: item.querySelector("category")?.textContent.trim() || ""
-      }));
-
-      const updatedQuizzes = savedQuizzes.map((quiz) => {
-        // Match IT basic quiz with IT Basics XML category
-        let xmlCategory = quiz.category;
-
-        if (quiz.name.toLowerCase().includes("it")) {
-          xmlCategory = "IT Basics";
-        }
-
-        // Get XML questions for this quiz
-        const quizXmlQuestions = xmlQuestions.filter(
-          (item) =>
-            item.category.toLowerCase() ===
-            xmlCategory.toLowerCase()
-        );
-
-        // Get locally saved questions
-        const localQuestions = savedQuestions[String(quiz.id)] || [];
-
-        // Get deleted XML question IDs
-        const deletedIds = deletedQuestions[String(quiz.id)] || [];
-
-        // Combine questions without duplicates
-        const questionMap = new Map();
-
-        quizXmlQuestions
-          .filter((item) => !deletedIds.includes(item.id))
-          .forEach((item) => {
-            questionMap.set(item.id, item);
-          });
-
-        localQuestions.forEach((item) => {
-          questionMap.set(item.id, item);
+      const updatedQuizzes = quizzesData.map((quiz) => {
+        // Count questions strictly belonging to THIS quiz ID.
+        // Legacy fallback only applies to default seeded quizzes (IDs "1", "2", "3")
+        const matchingQuestions = questionsData.filter((q) => {
+          if (q.quizId !== undefined && q.quizId !== null && String(q.quizId).trim() !== "") {
+            return String(q.quizId) === String(quiz.id);
+          }
+          // Only the original 3 default quizzes link by category if quizId is absent:
+          if (String(quiz.id) === "1") return (q.category || "").toLowerCase() === "java";
+          if (String(quiz.id) === "2") return (q.category || "").toLowerCase() === "sql";
+          if (String(quiz.id) === "3") return (q.category || "").toLowerCase().includes("it basic");
+          return false;
         });
 
         return {
           ...quiz,
-          questions: questionMap.size
+          name: quiz.name || quiz.title,
+          category: quiz.category || "General",
+          level: quiz.level || "Easy",
+          questions: matchingQuestions.length,
         };
       });
 
-      localStorage.setItem(
-        "quizzes",
-        JSON.stringify(updatedQuizzes)
-      );
-
       setQuizzes(updatedQuizzes);
     } catch (error) {
-      console.error("Error loading quiz questions:", error);
+      console.error("Error loading quizzes:", error);
     }
   }
 
   useEffect(() => {
     loadQuizzes();
-
-    window.addEventListener("questionsUpdated", loadQuizzes);
-
-    return () => {
-      window.removeEventListener("questionsUpdated", loadQuizzes);
-    };
   }, []);
 
   const filteredQuizzes = quizzes.filter((quiz) =>
-    quiz.name.toLowerCase().includes(search.toLowerCase())
+    (quiz.name || "").toLowerCase().includes(search.toLowerCase())
   );
 
-  function handleDelete(id) {
-    const updatedQuizzes = quizzes.filter(
-      (quiz) => quiz.id !== id
+  async function handleDelete(id) {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this quiz?"
     );
 
-    setQuizzes(updatedQuizzes);
+    if (!confirmDelete) return;
 
-    localStorage.setItem(
-      "quizzes",
-      JSON.stringify(updatedQuizzes)
-    );
+    try {
+      const response = await fetch(`${QUIZZES_API}/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.error || "Failed to delete quiz");
+      }
+
+      setQuizzes(quizzes.filter((quiz) => String(quiz.id) !== String(id)));
+      alert("Quiz deleted successfully!");
+    } catch (error) {
+      alert(error.message);
+    }
   }
 
   return (
     <div className="admin-page">
-      <h1>Quiz Management</h1>
+      <Breadcrumb />
 
+      <h1>Quiz Management</h1>
       <p>Manage all quizzes from this page.</p>
 
       <div className="admin-toolbar">
@@ -133,7 +101,7 @@ function AdminQuizzes() {
         />
 
         <Link to="/admin/quizzes/add">
-          <button>+ Add Quiz</button>
+          <button type="button">+ Add Quiz</button>
         </Link>
       </div>
 
@@ -169,6 +137,7 @@ function AdminQuizzes() {
 
               <td>
                 <button
+                  type="button"
                   onClick={() =>
                     navigate(`/admin/quizzes/${quiz.id}/questions`)
                   }
@@ -177,6 +146,7 @@ function AdminQuizzes() {
                 </button>
 
                 <button
+                  type="button"
                   onClick={() =>
                     navigate(`/admin/quizzes/add?edit=${quiz.id}`)
                   }
@@ -184,7 +154,10 @@ function AdminQuizzes() {
                   Edit
                 </button>
 
-                <button onClick={() => handleDelete(quiz.id)}>
+                <button
+                  type="button"
+                  onClick={() => handleDelete(quiz.id)}
+                >
                   Delete
                 </button>
               </td>
@@ -193,9 +166,7 @@ function AdminQuizzes() {
         </tbody>
       </table>
 
-      {filteredQuizzes.length === 0 && (
-        <p>No quizzes found.</p>
-      )}
+      {filteredQuizzes.length === 0 && <p>No quizzes found.</p>}
     </div>
   );
 }

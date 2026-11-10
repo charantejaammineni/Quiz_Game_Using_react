@@ -1,0 +1,47 @@
+[
+  {
+    "id": "1",
+    "name": "admin",
+    "username": "admin",
+    "email": "admin@quizmaster.com",
+    "password": "Admin@123",
+    "role": "admin",
+    "status": "Active"
+  },
+  {
+    "id": "2",
+    "name": "Charan",
+    "username": "Charan",
+    "email": "charanteja@gmail.com",
+    "password": "user123",
+    "role": "User",
+    "status": "Active"
+  },
+  {
+    "id": "3",
+    "name": "Deepak",
+    "username": "Deepak",
+    "email": "deepak@gmail.com",
+    "password": "12345678",
+    "role": "User",
+    "status": "Active"
+  },
+  {
+    "id": "4",
+    "name": "charan",
+    "username": "charan",
+    "email": "charan@gmail.com",
+    "password": "12345678",
+    "role": "User",
+    "status": "Active"
+  },
+  {
+    "id": "5",
+    "name": "bobby",
+    "username": "bobby",
+    "email": "bobby@gmail.com",
+    "password": "12345678",
+    "role": "User",
+    "status": "Active"
+  }
+]

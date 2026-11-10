@@ -1,6 +1,9 @@
-
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+
+const QUIZZES_API = "http://localhost:5000/api/quizzes";
+const USERS_API = "http://localhost:5000/api/users";
+const RESULTS_API = "http://localhost:5000/api/results";
 
 function AdminHome() {
   const navigate = useNavigate();
@@ -12,74 +15,63 @@ function AdminHome() {
     averageScore: 0,
   });
 
-  // Logout admin
-  function handleLogout() {
-    sessionStorage.removeItem("adminLoggedIn");
-    navigate("/admin/signin", { replace: true });
-  }
-
-  // Load dashboard statistics
+  // Load dashboard statistics from the backend API
   useEffect(() => {
-    function updateDashboard() {
-      const quizzes = JSON.parse(
-        localStorage.getItem("quizzes") || "[]"
-      );
+    async function updateDashboard() {
+      try {
+        const [quizzesRes, usersRes, resultsRes] = await Promise.all([
+          fetch(QUIZZES_API),
+          fetch(USERS_API),
+          fetch(RESULTS_API),
+        ]);
 
-      const users = JSON.parse(
-        localStorage.getItem("users") || "[]"
-      );
+        const quizzes = quizzesRes.ok ? await quizzesRes.json() : [];
+        const users = usersRes.ok ? await usersRes.json() : [];
+        const results = resultsRes.ok ? await resultsRes.json() : [];
 
-      const results = JSON.parse(
-        localStorage.getItem("quizResults") || "[]"
-      );
+        // Exclude admin accounts from the user count (case-insensitive)
+        const regularUsers = users.filter(
+          (user) => (user.role || "").toLowerCase() !== "admin"
+        );
 
-      // Exclude admin accounts from the user count
-      const regularUsers = users.filter(
-        (user) => user.role !== "Admin"
-      );
+        // Calculate average percentage across all quiz attempts
+        const validResults = results.filter(
+          (result) =>
+            Number(result.totalQuestions) > 0 &&
+            Number.isFinite(Number(result.score))
+        );
 
-      // Calculate average percentage across all quiz attempts
-      const validResults = results.filter(
-        (result) =>
-          Number(result.totalQuestions) > 0 &&
-          Number.isFinite(Number(result.score))
-      );
+        const totalPercentage = validResults.reduce(
+          (total, result) =>
+            total +
+            (Number(result.score) / Number(result.totalQuestions)) * 100,
+          0
+        );
 
-      const totalPercentage = validResults.reduce(
-        (total, result) =>
-          total +
-          (Number(result.score) /
-            Number(result.totalQuestions)) *
-            100,
-        0
-      );
+        const averageScore = validResults.length
+          ? Math.round(totalPercentage / validResults.length)
+          : 0;
 
-      const averageScore = validResults.length
-        ? Math.round(
-            totalPercentage / validResults.length
-          )
-        : 0;
-
-      setStats({
-        totalQuizzes: quizzes.length,
-        totalUsers: regularUsers.length,
-        totalAttempts: results.length,
-        averageScore,
-      });
+        setStats({
+          totalQuizzes: quizzes.length,
+          totalUsers: regularUsers.length,
+          totalAttempts: results.length,
+          averageScore,
+        });
+      } catch (error) {
+        console.error("Error loading dashboard metrics:", error);
+      }
     }
 
     updateDashboard();
 
-    // Refresh statistics periodically and when the tab becomes active
-    const interval = setInterval(updateDashboard, 2000);
-
+    // Refresh statistics periodically and when tab gains focus
+    const interval = setInterval(updateDashboard, 5000);
     window.addEventListener("focus", updateDashboard);
-    window.addEventListener("storage", updateDashboard);
 
     return () => {
       clearInterval(interval);
       window.removeEventListener("focus", updateDashboard);
-      window.removeEventListener("storage", updateDashboard);
     };
   }, []);
 
@@ -113,22 +105,7 @@ function AdminHome() {
       <div className="admin-header">
         <div>
           <h1>Admin Dashboard</h1>
-          <p>
-            Manage your QuizMaster application from here.
-          </p>
-        </div>
-
-        {/* Admin avatar and logout */}
-        <div className="admin-header-actions">
-          {/* <div className="admin-avatar">A</div> */}
-
-          {/* <button
-            type="button"
-            className="admin-logout-btn"
-            onClick={handleLogout}
-          >
-            Logout
-          </button> */}
+          <p>Manage your QuizMaster application from here.</p>
         </div>
       </div>
 
@@ -146,10 +123,7 @@ function AdminHome() {
               }
             }}
             style={{
-              cursor:
-                item.title === "Total Users"
-                  ? "pointer"
-                  : "default",
+              cursor: item.title === "Total Users" ? "pointer" : "default",
             }}
           >
             <div className="stat-icon">{item.icon}</div>
@@ -218,9 +192,7 @@ function AdminHome() {
 
             <div>
               <strong>Registered Users</strong>
-              <p>
-                Total registered users: {stats.totalUsers}
-              </p>
+              <p>Total registered users: {stats.totalUsers}</p>
             </div>
           </div>
 
@@ -229,9 +201,7 @@ function AdminHome() {
 
             <div>
               <strong>Available Quizzes</strong>
-              <p>
-                Total quizzes created: {stats.totalQuizzes}
-              </p>
+              <p>Total quizzes created: {stats.totalQuizzes}</p>
             </div>
           </div>
 
@@ -240,9 +210,7 @@ function AdminHome() {
 
             <div>
               <strong>Quiz Attempts</strong>
-              <p>
-                Total completed attempts: {stats.totalAttempts}
-              </p>
+              <p>Total completed attempts: {stats.totalAttempts}</p>
             </div>
           </div>
         </div>

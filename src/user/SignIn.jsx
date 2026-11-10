@@ -1,6 +1,7 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+
+const LOGIN_API = "http://localhost:5000/api/login";
 
 function SignIn() {
   const navigate = useNavigate();
@@ -9,47 +10,54 @@ function SignIn() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
     setError("");
 
-    const savedUsers = JSON.parse(
-      localStorage.getItem("users") || "[]"
-    );
+    try {
+      const response = await fetch(LOGIN_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(),
+          password: password,
+        }),
+      });
 
-    const user = savedUsers.find(
-      (item) =>
-        item.email.toLowerCase() === email.trim().toLowerCase() &&
-        item.password === password
-    );
+      const data = await response.json();
 
-    if (!user) {
-      setError("Invalid email or password.");
-      return;
+      if (!response.ok) {
+        setError(data.error || "Invalid email or password.");
+        return;
+      }
+
+      const user = data.user;
+
+      if (user.status === "Inactive") {
+        setError("Your account is inactive. Please contact the administrator.");
+        return;
+      }
+
+      if ((user.role || "").toLowerCase() === "admin") {
+        setError("Please use the Admin Sign In page.");
+        return;
+      }
+
+      sessionStorage.setItem(
+        "userLoggedIn",
+        JSON.stringify({
+          id: user.id,
+          name: user.name || user.username,
+          email: user.email,
+          role: user.role,
+        })
+      );
+
+      alert("Sign in successful!");
+      navigate("/user", { replace: true });
+    } catch (err) {
+      setError("Unable to connect to server. Please try again.");
     }
-
-    if (user.status === "Inactive") {
-      setError("Your account is inactive. Please contact the administrator.");
-      return;
-    }
-
-    if (user.role === "Admin") {
-      setError("Please use the Admin Sign In page.");
-      return;
-    }
-
-    sessionStorage.setItem(
-      "userLoggedIn",
-      JSON.stringify({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      })
-    );
-
-    alert("Sign in successful!");
-    navigate("/user", { replace: true });
   }
 
   return (

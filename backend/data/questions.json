@@ -1,0 +1,272 @@
+[
+  {
+    "id": 1,
+    "quizId": "1",
+    "category": "Java",
+    "level": "Easy",
+    "question": "Which keyword is used to create a class in Java?",
+    "text": "Which keyword is used to create a class in Java?",
+    "options": [
+      "class",
+      "struct",
+      "define",
+      "object"
+    ],
+    "correctAnswer": "class",
+    "answer": "class"
+  },
+  {
+    "id": 2,
+    "quizId": "1",
+    "category": "Java",
+    "level": "Easy",
+    "question": "Which method is the usual entry point of a Java application?",
+    "text": "Which method is the usual entry point of a Java application?",
+    "options": [
+      "start()",
+      "main()",
+      "run()",
+      "execute()"
+    ],
+    "correctAnswer": "main()",
+    "answer": "main()"
+  },
+  {
+    "id": 3,
+    "quizId": "1",
+    "category": "Java",
+    "level": "Easy",
+    "question": "Which data type stores true or false values in Java?",
+    "text": "Which data type stores true or false values in Java?",
+    "options": [
+      "int",
+      "String",
+      "boolean",
+      "char"
+    ],
+    "correctAnswer": "boolean",
+    "answer": "boolean"
+  },
+  {
+    "id": 4,
+    "quizId": "1",
+    "category": "Java",
+    "level": "Easy",
+    "question": "Which keyword is used to create an object in Java?",
+    "text": "Which keyword is used to create an object in Java?",
+    "options": [
+      "this",
+      "new",
+      "static",
+      "void"
+    ],
+    "correctAnswer": "new",
+    "answer": "new"
+  },
+  {
+    "id": 5,
+    "quizId": "1",
+    "category": "Java",
+    "level": "Easy",
+    "question": "Which OOP concept allows one class to acquire properties and methods of another class?",
+    "text": "Which OOP concept allows one class to acquire properties and methods of another class?",
+    "options": [
+      "Encapsulation",
+      "Polymorphism",
+      "Inheritance",
+      "Abstraction"
+    ],
+    "correctAnswer": "Inheritance",
+    "answer": "Inheritance"
+  },
+  {
+    "id": 6,
+    "quizId": "2",
+    "category": "SQL",
+    "level": "Easy",
+    "question": "Which SQL command is used to retrieve data from a table?",
+    "text": "Which SQL command is used to retrieve data from a table?",
+    "options": [
+      "INSERT",
+      "SELECT",
+      "UPDATE",
+      "DELETE"
+    ],
+    "correctAnswer": "SELECT",
+    "answer": "SELECT"
+  },
+  {
+    "id": 7,
+    "quizId": "2",
+    "category": "SQL",
+    "level": "Easy",
+    "question": "Which SQL clause is used to filter rows based on a condition?",
+    "text": "Which SQL clause is used to filter rows based on a condition?",
+    "options": [
+      "ORDER BY",
+      "GROUP BY",
+      "WHERE",
+      "SELECT"
+    ],
+    "correctAnswer": "WHERE",
+    "answer": "WHERE"
+  },
+  {
+    "id": 8,
+    "quizId": "2",
+    "category": "SQL",
+    "level": "Easy",
+    "question": "Which SQL command adds a new row to a table?",
+    "text": "Which SQL command adds a new row to a table?",
+    "options": [
+      "INSERT",
+      "UPDATE",
+      "ALTER",
+      "DROP"
+    ],
+    "correctAnswer": "INSERT",
+    "answer": "INSERT"
+  },
+  {
+    "id": 9,
+    "quizId": "2",
+    "category": "SQL",
+    "level": "Easy",
+    "question": "Which SQL function counts the number of rows?",
+    "text": "Which SQL function counts the number of rows?",
+    "options": [
+      "SUM()",
+      "COUNT()",
+      "AVG()",
+      "MAX()"
+    ],
+    "correctAnswer": "COUNT()",
+    "answer": "COUNT()"
+  },
+  {
+    "id": 10,
+    "quizId": "2",
+    "category": "SQL",
+    "level": "Easy",
+    "question": "Which SQL clause sorts query results?",
+    "text": "Which SQL clause sorts query results?",
+    "options": [
+      "WHERE",
+      "HAVING",
+      "ORDER BY",
+      "GROUP BY"
+    ],
+    "correctAnswer": "ORDER BY",
+    "answer": "ORDER BY"
+  },
+  {
+    "id": 11,
+    "quizId": "3",
+    "category": "IT Basics",
+    "level": "Easy",
+    "question": "What does CPU stand for?",
+    "text": "What does CPU stand for?",
+    "options": [
+      "Central Processing Unit",
+      "Computer Personal Unit",
+      "Central Program Utility",
+      "Control Processing User"
+    ],
+    "correctAnswer": "Central Processing Unit",
+    "answer": "Central Processing Unit"
+  },
+  {
+    "id": 12,
+    "quizId": "3",
+    "category": "IT Basics",
+    "level": "Easy",
+    "question": "Which of these is an operating system?",
+    "text": "Which of these is an operating system?",
+    "options": [
+      "HTML",
+      "Windows",
+      "MySQL",
+      "Java"
+    ],
+    "correctAnswer": "Windows",
+    "answer": "Windows"
+  },
+  {
+    "id": 13,
+    "quizId": "3",
+    "category": "IT Basics",
+    "level": "Easy",
+    "question": "Which device is commonly used to enter text into a computer?",
+    "text": "Which device is commonly used to enter text into a computer?",
+    "options": [
+      "Monitor",
+      "Speaker",
+      "Keyboard",
+      "Projector"
+    ],
+    "correctAnswer": "Keyboard",
+    "answer": "Keyboard"
+  },
+  {
+    "id": 14,
+    "quizId": "3",
+    "category": "IT Basics",
+    "level": "Easy",
+    "question": "What is RAM mainly used for while a computer is running?",
+    "text": "What is RAM mainly used for while a computer is running?",
+    "options": [
+      "Permanent file storage",
+      "Temporary working memory",
+      "Printing documents",
+      "Connecting to Wi-Fi"
+    ],
+    "correctAnswer": "Temporary working memory",
+    "answer": "Temporary working memory"
+  },
+  {
+    "id": 15,
+    "quizId": "3",
+    "category": "IT Basics",
+    "level": "Easy",
+    "question": "Which device is commonly used to connect different networks?",
+    "text": "Which device is commonly used to connect different networks?",
+    "options": [
+      "Router",
+      "Keyboard",
+      "Scanner",
+      "Printer"
+    ],
+    "correctAnswer": "Router",
+    "answer": "Router"
+  },
+  {
+    "id": 16,
+    "quizId": "4",
+    "question": "hi",
+    "text": "hi",
+    "options": [
+      "hh",
+      "joo",
+      "lo",
+      "hh"
+    ],
+    "correctAnswer": "hh",
+    "answer": "hh",
+    "category": "Java"
+  },
+  {
+    "id": 17,
+    "quizId": "4",
+    "question": "hh",
+    "text": "hh",
+    "options": [
+      "12",
+      "123",
+      "1234",
+      "12345"
+    ],
+    "correctAnswer": "12",
+    "answer": "12",
+    "category": "Java"
+  }
+]

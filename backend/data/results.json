@@ -1,0 +1,68 @@
+[
+  {
+    "id": "1793966533668",
+    "userId": 13,
+    "username": "bobby",
+    "quizId": "1",
+    "quizTitle": "Java Fundamentals",
+    "category": "Java",
+    "score": 2,
+    "totalQuestions": 5,
+    "date": "2026-11-06"
+  },
+  {
+    "id": "1793966533669",
+    "userId": "5",
+    "username": "bobby",
+    "quizId": "4",
+    "quizTitle": "javaa",
+    "category": "Java",
+    "score": 0,
+    "totalQuestions": 2,
+    "date": "2026-11-10"
+  },
+  {
+    "id": "1793966533670",
+    "userId": "5",
+    "username": "bobby",
+    "quizId": "4",
+    "quizTitle": "javaa",
+    "category": "Java",
+    "score": 1,
+    "totalQuestions": 2,
+    "date": "2026-11-10"
+  },
+  {
+    "id": "1793966533671",
+    "userId": "5",
+    "username": "bobby",
+    "quizId": "4",
+    "quizTitle": "javaa",
+    "category": "Java",
+    "score": 1,
+    "totalQuestions": 2,
+    "date": "2026-11-10"
+  },
+  {
+    "id": "1793966533672",
+    "userId": "5",
+    "username": "bobby",
+    "quizId": "1",
+    "quizTitle": "Java Fundamentals",
+    "category": "Java",
+    "score": 0,
+    "totalQuestions": 5,
+    "date": "2026-11-10"
+  },
+  {
+    "id": "1793966533673",
+    "userId": "5",
+    "username": "bobby",
+    "quizId": "4",
+    "quizTitle": "javaa",
+    "category": "Java",
+    "score": 0,
+    "totalQuestions": 2,
+    "date": "2026-11-10"
+  }
+]

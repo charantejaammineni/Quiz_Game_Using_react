@@ -1,7 +1,8 @@
-
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { loadQuestions } from "../data/quizData";
+
+const QUIZZES_API = "http://localhost:5000/api/quizzes";
+const RESULTS_API = "http://localhost:5000/api/results";
 
 function UserHome() {
   const [availableQuizzes, setAvailableQuizzes] = useState(0);
@@ -11,67 +12,55 @@ function UserHome() {
   useEffect(() => {
     async function loadDashboardData() {
       try {
-        const savedQuizzes = JSON.parse(
-          localStorage.getItem("quizzes") || "[]"
+        // Fetch quizzes and attempts concurrently from backend
+        const [quizzesRes, resultsRes] = await Promise.all([
+          fetch(QUIZZES_API),
+          fetch(RESULTS_API),
+        ]);
+
+        const quizzes = quizzesRes.ok ? await quizzesRes.json() : [];
+        const results = resultsRes.ok ? await resultsRes.json() : [];
+
+        setAvailableQuizzes(quizzes.length);
+
+        // Retrieve currently logged-in user session
+        let user = null;
+        try {
+          user = JSON.parse(sessionStorage.getItem("userLoggedIn"));
+        } catch {
+          user = null;
+        }
+
+        // Filter quiz attempts for this specific user
+        const userResults = results.filter((result) => {
+          if (!user) return false;
+          return (
+            String(result.userId) === String(user.id) ||
+            result.username === user.name ||
+            result.username === user.username
+          );
+        });
+
+        setCompletedQuizzes(userResults.length);
+
+        const validResults = userResults.filter(
+          (result) => Number(result.totalQuestions) > 0
         );
 
-        const allQuestions = await loadQuestions();
+        if (validResults.length > 0) {
+          const totalPercentage = validResults.reduce(
+            (total, result) =>
+              total +
+              (Number(result.score) / Number(result.totalQuestions)) * 100,
+            0
+          );
 
-        // Count XML categories when no admin quizzes are saved.
-        const categories = [
-          ...new Set(
-            allQuestions
-              .map((question) => question.category?.trim())
-              .filter(Boolean)
-          ),
-        ];
-
-        setAvailableQuizzes(
-          savedQuizzes.length > 0
-            ? savedQuizzes.length
-            : categories.length
-        );
+          setAverageScore(Math.round(totalPercentage / validResults.length));
+        } else {
+          setAverageScore(0);
+        }
       } catch (error) {
-        console.error("Could not load quizzes:", error);
-        setAvailableQuizzes(0);
-      }
-
-      // Get the currently logged-in user
-      let user = null;
-
-      try {
-        user = JSON.parse(sessionStorage.getItem("userLoggedIn"));
-      } catch {
-        user = null;
-      }
-
-      // Get quiz results
-      const savedResults = JSON.parse(
-        localStorage.getItem("quizResults") || "[]"
-      );
-
-      const userResults = savedResults.filter(
-        (result) => user && result.userId === user.id
-      );
-
-      setCompletedQuizzes(userResults.length);
-
-      const validResults = userResults.filter(
-        (result) => result.totalQuestions > 0
-      );
-
-      if (validResults.length > 0) {
-        const totalPercentage = validResults.reduce(
-          (total, result) =>
-            total + (result.score / result.totalQuestions) * 100,
-          0
-        );
-
-        setAverageScore(
-          Math.round(totalPercentage / validResults.length)
-        );
-      } else {
-        setAverageScore(0);
+        console.error("Could not load user dashboard data:", error);
       }
     }
 
@@ -109,4 +98,4 @@ function UserHome() {
   );
 }
 
-export default UserHome;
+export default UserHome;  

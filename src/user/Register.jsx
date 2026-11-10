@@ -1,6 +1,7 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+
+const USERS_API = "http://localhost:5000/api/users";
 
 function Register() {
   const navigate = useNavigate();
@@ -8,47 +9,59 @@ function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
+  const [isEmailTaken, setIsEmailTaken] = useState(false);
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
     setError("");
+    setIsEmailTaken(false);
 
-    const savedUsers = JSON.parse(
-      localStorage.getItem("users") || "[]"
-    );
-
-    // Check whether the email is already registered
-    const existingUser = savedUsers.find(
-      (user) => user.email.toLowerCase() === email.trim().toLowerCase()
-    );
-
-    if (existingUser) {
-      setError("This email is already registered.");
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
       return;
     }
 
-    const newId =
-      savedUsers.length > 0
-        ? Math.max(...savedUsers.map((user) => Number(user.id) || 0)) + 1
-        : 1;
+    try {
+      const response = await fetch(USERS_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: name.trim(),
+          username: name.trim(),
+          email: email.trim().toLowerCase(),
+          password: password,
+          role: "User",
+          status: "Active",
+        }),
+      });
 
-    const newUser = {
-      id: newId,
-      name: name.trim(),
-      email: email.trim().toLowerCase(),
-      password: password,
-      role: "User",
-      status: "Active",
-    };
+      const data = await response.json();
 
-    localStorage.setItem(
-      "users",
-      JSON.stringify([...savedUsers, newUser])
-    );
+      if (!response.ok) {
+        // Check if the backend rejected due to existing email
+        const errorMessage = (data.error || "").toLowerCase();
+        if (
+          errorMessage.includes("already registered") ||
+          errorMessage.includes("already exists") ||
+          errorMessage.includes("email")
+        ) {
+          setIsEmailTaken(true);
+          setError("This email already exists!");
+        } else {
+          setError(data.error || "Failed to register.");
+        }
+        return;
+      }
 
-    alert("Registration successful! Please sign in.");
-    navigate("/user/signin");
+      alert("Registration successful! Please sign in.");
+      navigate("/user/signin");
+    } catch (err) {
+      setError("Unable to connect to server. Please try again.");
+    }
   }
 
   return (
@@ -69,22 +82,87 @@ function Register() {
         <input
           type="email"
           value={email}
-          onChange={(event) => setEmail(event.target.value)}
+          onChange={(event) => {
+            setEmail(event.target.value);
+            // Clear email taken alert as soon as the user starts editing the email
+            if (isEmailTaken) {
+              setIsEmailTaken(false);
+              setError("");
+            }
+          }}
           placeholder="Enter your email"
           required
         />
 
         <label>Password</label>
-        <input
-          type="password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          placeholder="Enter your password"
-          minLength={6}
-          required
-        />
+        <div style={{ position: "relative", width: "100%" }}>
+          <input
+            type={showPassword ? "text" : "password"}
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            placeholder="Enter your password"
+            minLength={6}
+            required
+            style={{ width: "100%", paddingRight: "40px", boxSizing: "border-box" }}
+          />
+          <i
+            className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}
+            onClick={() => setShowPassword(!showPassword)}
+            style={{
+              position: "absolute",
+              right: "12px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              cursor: "pointer",
+              color: "#666",
+              fontSize: "1.1rem",
+            }}
+          ></i>
+        </div>
 
-        {error && <p className="auth-error">{error}</p>}
+        <label>Confirm Password</label>
+        <div style={{ position: "relative", width: "100%" }}>
+          <input
+            type={showConfirmPassword ? "text" : "password"}
+            value={confirmPassword}
+            onChange={(event) => setConfirmPassword(event.target.value)}
+            placeholder="Confirm your password"
+            minLength={6}
+            required
+            style={{ width: "100%", paddingRight: "40px", boxSizing: "border-box" }}
+          />
+          <i
+            className={`bi ${showConfirmPassword ? "bi-eye-slash" : "bi-eye"}`}
+            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            style={{
+              position: "absolute",
+              right: "12px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              cursor: "pointer",
+              color: "#666",
+              fontSize: "1.1rem",
+            }}
+          ></i>
+        </div>
+
+        {error && (
+          <p className="auth-error">
+            {error}{" "}
+            {isEmailTaken && (
+              <span>
+                Please{" "}
+                <Link
+                  to="/user/signin"
+                  style={{ textDecoration: "underline", fontWeight: "bold" }}
+                >
+                  Log In
+                </Link>{" "}
+                or change your email ID.
+              </span>
+            )}
+          </p>
+        )}
 
         <button type="submit">Register</button>
       </form>
