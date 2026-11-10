@@ -1,102 +1,115 @@
-# QuizMaster – Online Quiz Application
+# QuizMaster
 
-QuizMaster is a web-based quiz application developed using React.js. It allows users to take quizzes, test their knowledge, view their scores, and track their quiz history. It also provides an admin portal to manage quizzes, questions, and users.
+A full-stack quiz web application built with **React (Vite)** and a **Node.js/Express** persistent JSON backend.
+
+---
 
 ## Features
 
-### User Portal
-- User registration and sign-in
-- View and select available quizzes
-- Answer multiple-choice questions
-- Calculate quiz scores and display results
-- View quiz history
-- View leaderboard rankings
-- Manage user profile
+### User
 
-### Admin Portal
-- Admin sign-in
-- Create and manage quizzes
-- Add, edit, and delete quiz questions
-- Manage users
-- View quiz results and reports
-- Access admin dashboard and other management pages
+* User registration and login with session management.
+* Browse quizzes by category (`Java`, `SQL`, `IT Basics`, or custom).
+* Interactive multiple-choice quiz runner with real-time scoring.
+* Back-button navigation protection on completed exams.
+* Score summary, personal quiz history, and profile statistics.
+* Global leaderboard based on accuracy and scores.
 
-## Technologies Used
+### Admin
 
-- **Frontend:** React.js, JavaScript, HTML5, CSS3
-- **Routing:** React Router
-- **Data Storage:** Browser `localStorage` and `sessionStorage`
-- **Question Data:** XML
-- **Development Tool:** Vite
-- **Version Control:** Git and GitHub
+* Admin authentication dashboard.
+* Create, edit, and delete quizzes with automated IDs.
+* Add, edit, and delete questions linked strictly by `quizId`.
+* Monitor registered users and account statuses.
+* Live results table with search and delete options.
+* Performance reports and analytics.
+* Breadcrumb navigation across all admin views.
+
+---
+
+## Tech Stack
+
+* **Frontend:** React, React Router v6, Vite, CSS
+* **Backend:** Node.js, Express, CORS
+* **Storage:** JSON Database (`backend/data/`)
+
+---
 
 ## Project Structure
 
 ```text
 Quizmaster/
-├── public/
-│   └── data/
-│       └── questions.xml
+├── backend/
+│   ├── data/
+│   │   ├── questions.json
+│   │   ├── quizzes.json
+│   │   ├── results.json
+│   │   └── users.json
+│   ├── package.json
+│   └── server.js
 ├── src/
 │   ├── admin/
 │   ├── components/
-│   ├── data/
 │   ├── user/
-│   ├── App.jsx
 │   ├── App.css
+│   ├── App.jsx
 │   └── main.jsx
-├── index.html
 ├── package.json
 └── vite.config.js
+
 ```
+
+---
 
 ## Getting Started
 
-### Prerequisites
-- Node.js
-- npm
-- Git
+### 1. Clone the repository
 
-### Installation
+```bash
+git clone https://github.com/charantejaammineni/Quiz_Game_Using_react.git
+cd Quiz_Game_Using_react
 
-1. Clone the repository:
+```
 
-   ```bash
-   git clone https://github.com/charantejaammineni/Quiz_Game_Using_react.git
-   ```
+### 2. Run the Backend API
 
-2. Navigate to the project folder:
+```bash
+cd backend
+npm install
+node server.js
 
-   ```bash
-   cd Quiz_Game_Using_react
-   ```
+```
 
-3. Install dependencies:
+Runs at: **`http://localhost:5000`**
 
-   ```bash
-   npm install
-   ```
+### 3. Run the Frontend (in a new terminal)
 
-4. Start the development server:
+```bash
+npm install
+npm run dev
 
-   ```bash
-   npm run dev
-   ```
+```
 
-5. Open the local URL displayed in the terminal in your browser.
+Runs at: **`http://localhost:5173`**
 
-## Data Storage
+---
 
-QuizMaster uses browser storage to save application data such as user information, quiz details, questions managed through the admin portal, and quiz results. XML is used to provide the initial quiz question data.
+## API Endpoints
 
-**Note:** Browser storage is local to the website and browser. This project does not currently use a centralized backend database.
+| Endpoint | Methods | Description |
+| --- | --- | --- |
+| `/api/quizzes` | `GET`, `POST` | Get all quizzes or create a quiz |
+| `/api/quizzes/:id` | `PUT`, `DELETE` | Update or delete a quiz |
+| `/api/questions` | `GET`, `POST` | Get questions or add questions by `quizId` |
+| `/api/questions/:id` | `PUT`, `DELETE` | Update or delete a question |
+| `/api/users` | `GET`, `POST` | Get all users or register a new user |
+| `/api/results` | `GET`, `POST` | Fetch quiz submissions or save a new result |
+| `/api/results/:id` | `DELETE` | Delete a quiz attempt |
 
-## Learning Outcomes
+---
 
-This project helped me practice:
-- Building reusable React components
-- Managing component state and side effects
-- Implementing navigation with React Router
-- Handling forms and user interactions
-- Working with XML and browser storage
-- Using Git and GitHub for version control
+## Default Login Credentials
+
+* **Admin Email:** `admin@quizmaster.com`
+* **Admin Password:** `admin123`
+* **User:** Register via the Sign-Up page or use existing accounts from `backend/data/users.json`.
