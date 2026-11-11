@@ -111,5 +111,5 @@ Runs at: **`http://localhost:5173`**
 ## Default Login Credentials
 
 * **Admin Email:** `admin@quizmaster.com`
-* **Admin Password:** `admin123`
+* **Admin Password:** `Admin@123`
 * **User:** Register via the Sign-Up page or use existing accounts from `backend/data/users.json`.
