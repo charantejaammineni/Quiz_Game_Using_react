@@ -267,6 +267,29 @@ app.delete("/api/quizzes/:id", (req, res) => {
 // 3. QUESTIONS ENDPOINTS
 // ==========================================
 
+// GET all questions (with optional filters for ?quizId=... or ?category=...)
+app.get("/api/questions", (req, res) => {
+  try {
+    const questions = readJson("questions");
+    const { quizId, category } = req.query;
+
+    let filtered = questions;
+
+    if (quizId) {
+      filtered = filtered.filter((q) => String(q.quizId) === String(quizId));
+    } else if (category) {
+      filtered = filtered.filter(
+        (q) => (q.category || "").toLowerCase() === category.toLowerCase()
+      );
+    }
+
+    res.json(filtered);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to read questions" });
+  }
+});
+
+// POST add new question
 app.post("/api/questions", (req, res) => {
   try {
     const questions = readJson("questions");
@@ -284,17 +307,15 @@ app.post("/api/questions", (req, res) => {
     const finalAnswer = (correctAnswer || answer || "").trim();
 
     if (!questionText || !Array.isArray(options) || !finalAnswer) {
-      return res.status(400).json({ error: "Missing required question fields" });
+      return res.status(400).json({ error: "Question text, options, and correctAnswer are required" });
     }
 
-    const nextId =
-      questions.length > 0
-        ? Math.max(...questions.map((q) => Number(q.id) || 0)) + 1
-        : 1;
+    const numericIds = questions.map((q) => Number(q.id)).filter((id) => !isNaN(id));
+    const nextId = numericIds.length > 0 ? Math.max(...numericIds) + 1 : 1;
 
     const newQuestion = {
       id: nextId,
-      quizId: quizId ? String(quizId) : undefined, // <--- Ensures quizId is stored
+      quizId: quizId ? String(quizId) : undefined,
       question: questionText,
       text: questionText,
       options: options.map((opt) => String(opt).trim()),
@@ -306,40 +327,6 @@ app.post("/api/questions", (req, res) => {
     questions.push(newQuestion);
     writeJson("questions", questions);
 
-    res.status(201).json(newQuestion);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to save question" });
-  }
-});
-
-// POST add question
-app.post("/api/questions", (req, res) => {
-  try {
-    const questions = readJson("questions");
-    const { question, text, options, correctAnswer, answer, category } = req.body;
-
-    const questionText = (question || text || "").trim();
-    const finalAnswer = (correctAnswer || answer || "").trim();
-
-    if (!questionText || !options || !finalAnswer || !category) {
-      return res.status(400).json({ error: "Question, options, category, and correctAnswer are required" });
-    }
-
-    const numericIds = questions.map((q) => Number(q.id)).filter((id) => !isNaN(id));
-    const nextId = numericIds.length > 0 ? Math.max(...numericIds) + 1 : 1;
-
-    const newQuestion = {
-      id: nextId,
-      question: questionText,
-      text: questionText,
-      options: options.map((opt) => String(opt).trim()),
-      correctAnswer: finalAnswer,
-      answer: finalAnswer,
-      category: category.trim(),
-    };
-
-    questions.push(newQuestion);
-    writeJson("questions", questions);
     res.status(201).json(newQuestion);
   } catch (error) {
     res.status(500).json({ error: "Failed to save question" });
