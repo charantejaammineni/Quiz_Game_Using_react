@@ -1,92 +1,69 @@
-
-import { useLayoutEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useEffect, useRef } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 function LockBackNavigation() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const isPromptOpen = useRef(false);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const currentPath = location.pathname;
+    const isDashboard = currentPath === "/admin" || currentPath === "/user";
 
-    const isDashboard =
-      currentPath === "/admin" || currentPath === "/user";
+    // Determine current role
+    const isAdmin =
+      currentPath === "/admin" &&
+      sessionStorage.getItem("adminLoggedIn") === "true";
 
-    function getSession() {
-      if (
-        currentPath === "/admin" &&
-        sessionStorage.getItem("adminLoggedIn") === "true"
-      ) {
-        return "admin";
-      }
+    let isUser = false;
+    try {
+      const userData = JSON.parse(sessionStorage.getItem("userLoggedIn"));
+      isUser = currentPath === "/user" && userData?.role === "User";
+    } catch {
+      isUser = false;
+    }
 
-      try {
-        const user = JSON.parse(
-          sessionStorage.getItem("userLoggedIn")
+    if (!isDashboard || (!isAdmin && !isUser)) return;
+
+    // Push initial guard entry
+    window.history.pushState({ guard: true }, "", window.location.href);
+
+    const handlePopState = () => {
+      // Prevent duplicate popups if the user clicks back repeatedly
+      if (isPromptOpen.current) return;
+      isPromptOpen.current = true;
+
+      // Re-anchor history immediately before showing dialog
+      window.history.pushState({ guard: true }, "", window.location.href);
+
+      // Small delay prevents Chrome's anti-hijack detector from triggering
+      setTimeout(() => {
+        const shouldLeave = window.confirm(
+          "Do you want to leave QuizMaster? You will be logged out."
         );
 
-        if (
-          currentPath === "/user" &&
-          user?.id &&
-          user.role === "User"
-        ) {
-          return "user";
+        isPromptOpen.current = false;
+
+        if (shouldLeave) {
+          if (isAdmin) {
+            sessionStorage.removeItem("adminLoggedIn");
+            navigate("/admin/signin", { replace: true });
+          } else {
+            sessionStorage.removeItem("userLoggedIn");
+            navigate("/user/signin", { replace: true });
+          }
         }
-      } catch {
-        return null;
-      }
+      }, 50);
+    };
 
-      return null;
-    }
-
-    const session = getSession();
-
-    if (!isDashboard || !session) return;
-
-    let restoringHistory = false;
-
-    window.history.pushState(
-      { dashboardGuard: true },
-      "",
-      window.location.href
-    );
-
-    
-function handleBack() {
-  const currentSession = getSession();
-
-  if (!currentSession) return;
-
-  // Restore the dashboard entry before showing confirmation.
-  window.history.pushState(
-    { dashboardGuard: true },
-    "",
-    window.location.href
-  );
-
-  const shouldLeave = window.confirm(
-    "Do you want to leave QuizMaster? You will be logged out."
-  );
-
-  if (shouldLeave) {
-    if (currentSession === "admin") {
-      sessionStorage.removeItem("adminLoggedIn");
-      window.location.replace("/admin/signin");
-    } else {
-      sessionStorage.removeItem("userLoggedIn");
-      window.location.replace("/user");
-    }
-  }
-}
-
-
-    window.addEventListener("popstate", handleBack);
+    window.addEventListener("popstate", handlePopState);
 
     return () => {
-      window.removeEventListener("popstate", handleBack);
+      window.removeEventListener("popstate", handlePopState);
     };
-  }, [location.pathname]);
+  }, [location.pathname, navigate]);
 
   return null;
 }
 
-export default LockBackNavigation;  
+export default LockBackNavigation;

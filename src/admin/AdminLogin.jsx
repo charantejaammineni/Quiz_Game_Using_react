@@ -10,10 +10,12 @@ function AdminLogin() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   async function handleSubmit(event) {
     event.preventDefault();
     setError("");
+    setIsLoading(true);
 
     try {
       const response = await fetch(LOGIN_API, {
@@ -29,6 +31,7 @@ function AdminLogin() {
 
       if (!response.ok) {
         setError(data.error || "Invalid email or password.");
+        setIsLoading(false);
         return;
       }
 
@@ -36,16 +39,19 @@ function AdminLogin() {
 
       if ((user.role || "").toLowerCase() !== "admin") {
         setError("Access denied: You do not have administrator permissions.");
+        setIsLoading(false);
         return;
       }
 
       sessionStorage.setItem("adminLoggedIn", "true");
       sessionStorage.setItem("adminUser", JSON.stringify(user));
 
-      alert("Sign in successful!");
-      navigate("/admin", { replace: true });
+      // Clean redirect without alert interruption
+      navigate("/admin");
     } catch (err) {
       setError("Unable to connect to server. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -90,7 +96,9 @@ function AdminLogin() {
 
         {error && <p className="auth-error">{error}</p>}
 
-        <button type="submit">Signin</button>
+        <button type="submit" disabled={isLoading}>
+          {isLoading ? "Signing in..." : "Signin"}
+        </button>
       </form>
     </div>
   );

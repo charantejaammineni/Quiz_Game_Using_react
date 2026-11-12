@@ -1,4 +1,3 @@
-
 import { Routes, Route } from "react-router-dom";
 
 import UserHome from "./UserHome";
@@ -16,18 +15,18 @@ function UserRoutes() {
   return (
     <Routes>
       {/* Public pages */}
-      <Route path="/user" element={<UserHome />} />
-      <Route path="/user/signin" element={<SignIn />} />
-      <Route path="/user/register" element={<Register />} />
+      <Route index element={<UserHome />} />
+      <Route path="signin" element={<SignIn />} />
+      <Route path="register" element={<Register />} />
 
       {/* Pages requiring user login */}
       <Route element={<UserAuth />}>
-        <Route path="/user/quiz" element={<Quiz />} />
-        <Route path="/user/result" element={<Result />} />
-        <Route path="/user/leaderboard" element={<Leaderboard />} />
-        <Route path="/user/profile" element={<Profile />} />
-        <Route path="/user/history" element={<History />} />
-        <Route path="/user/quizzes" element={<ChooseQuiz />} />
+        <Route path="quiz" element={<Quiz />} />
+        <Route path="result" element={<Result />} />
+        <Route path="leaderboard" element={<Leaderboard />} />
+        <Route path="profile" element={<Profile />} />
+        <Route path="history" element={<History />} />
+        <Route path="quizzes" element={<ChooseQuiz />} />
       </Route>
     </Routes>
   );

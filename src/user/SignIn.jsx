@@ -9,10 +9,12 @@ function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   async function handleSubmit(event) {
     event.preventDefault();
     setError("");
+    setIsLoading(true);
 
     try {
       const response = await fetch(LOGIN_API, {
@@ -28,21 +30,27 @@ function SignIn() {
 
       if (!response.ok) {
         setError(data.error || "Invalid email or password.");
+        setIsLoading(false);
         return;
       }
 
       const user = data.user;
 
-      if (user.status === "Inactive") {
+      // Check account status
+      if (user.status && user.status.toLowerCase() === "inactive") {
         setError("Your account is inactive. Please contact the administrator.");
+        setIsLoading(false);
         return;
       }
 
+      // Restrict admin accounts to Admin Signin
       if ((user.role || "").toLowerCase() === "admin") {
-        setError("Please use the Admin Sign In page.");
+        setError("Admin accounts must use the Admin Sign In page.");
+        setIsLoading(false);
         return;
       }
 
+      // Store authenticated user session
       sessionStorage.setItem(
         "userLoggedIn",
         JSON.stringify({
@@ -50,13 +58,16 @@ function SignIn() {
           name: user.name || user.username,
           email: user.email,
           role: user.role,
+          status: user.status || "Active",
         })
       );
 
-      alert("Sign in successful!");
-      navigate("/user", { replace: true });
+      // Clean redirect without alert interruption
+      navigate("/user");
     } catch (err) {
       setError("Unable to connect to server. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -85,7 +96,9 @@ function SignIn() {
 
         {error && <p className="auth-error">{error}</p>}
 
-        <button type="submit">Signin</button>
+        <button type="submit" disabled={isLoading}>
+          {isLoading ? "Signing in..." : "Signin"}
+        </button>
       </form>
 
       <p>

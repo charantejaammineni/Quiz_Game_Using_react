@@ -1,4 +1,3 @@
-
 import { Routes, Route } from "react-router-dom";
 
 import AdminHome from "./AdminHome";
@@ -21,35 +20,26 @@ function AdminRoutes() {
   return (
     <Routes>
       {/* Login page - accessible without authentication */}
-      <Route path="/admin/signin" element={<AdminLogin />} />
+      <Route path="signin" element={<AdminLogin />} />
 
       {/* All other admin pages require login */}
       <Route element={<AdminAuth />}>
-        <Route path="/admin" element={<AdminHome />} />
-        <Route path="/admin/quizzes" element={<AdminQuizzes />} />
-        <Route path="/admin/quizzes/add" element={<AddQuiz />} />
+        <Route index element={<AdminHome />} />
+        <Route path="quizzes" element={<AdminQuizzes />} />
+        <Route path="quizzes/add" element={<AddQuiz />} />
         <Route
-          path="/admin/quizzes/:quizId/questions"
+          path="quizzes/:quizId/questions"
           element={<QuestionManagement />}
         />
-        <Route path="/admin/users" element={<UserManagement />} />
-        <Route path="/admin/results" element={<Results />} />
-        <Route path="/admin/reports" element={<Reports />} />
-        <Route path="/admin/profile" element={<AdminProfile />} />
-        <Route path="/admin/settings" element={<AdminSettings />} />
-        <Route
-          path="/admin/quizzes/:quizId/details"
-          element={<QuizDetails />}
-        />
-        <Route
-          path="/admin/notifications"
-          element={<AdminNotifications />}
-        />
-        <Route path="/admin/calendar" element={<Calendar />} />
-        <Route
-          path="/admin/questions/upload"
-          element={<UploadQuestions />}
-        />
+        <Route path="users" element={<UserManagement />} />
+        <Route path="results" element={<Results />} />
+        <Route path="reports" element={<Reports />} />
+        <Route path="profile" element={<AdminProfile />} />
+        <Route path="settings" element={<AdminSettings />} />
+        <Route path="quizzes/:quizId/details" element={<QuizDetails />} />
+        <Route path="notifications" element={<AdminNotifications />} />
+        <Route path="calendar" element={<Calendar />} />
+        <Route path="questions/upload" element={<UploadQuestions />} />
       </Route>
     </Routes>
   );
