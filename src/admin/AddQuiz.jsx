@@ -66,9 +66,12 @@ function AddQuiz() {
       title: quizName.trim(),
       category: finalCategory,
       level: level,
-      questions: 0,
-      totalQuestions: 0,
     };
+
+    if (!editId) {
+      quizPayload.questions = 0;
+      quizPayload.totalQuestions = 0;
+    }
 
     try {
       if (editId) {

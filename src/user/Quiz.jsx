@@ -22,7 +22,9 @@ function Quiz() {
   useEffect(() => {
     setLoading(true);
 
-    fetch(QUESTIONS_API)
+    const queryParam = quizId ? `?quizId=${quizId}` : category ? `?category=${category}` : "";
+
+    fetch(`${QUESTIONS_API}${queryParam}`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to load questions");
         return res.json();

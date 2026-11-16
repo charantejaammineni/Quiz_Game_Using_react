@@ -8,12 +8,13 @@ function Profile() {
   const [quizzesCompleted, setCompletedQuizzes] = useState(0);
   const [averageScore, setAverageScore] = useState(0);
 
-  let user = null;
-  try {
-    user = JSON.parse(sessionStorage.getItem("userLoggedIn"));
-  } catch {
-    user = null;
-  }
+  const [user] = useState(() => {
+    try {
+      return JSON.parse(sessionStorage.getItem("userLoggedIn"));
+    } catch {
+      return null;
+    }
+  });
 
   useEffect(() => {
     if (!user) {
@@ -34,10 +35,10 @@ function Profile() {
             String(result.userId) === String(user.id) ||
             (result.username &&
               result.username.toLowerCase() ===
-                (user.name || user.username || "").toLowerCase()) ||
+              (user.name || user.username || "").toLowerCase()) ||
             (result.userEmail &&
               result.userEmail.toLowerCase() ===
-                (user.email || "").toLowerCase())
+              (user.email || "").toLowerCase())
         );
 
         setCompletedQuizzes(userResults.length);
@@ -63,7 +64,7 @@ function Profile() {
     }
 
     loadStats();
-  }, [user?.id, user?.name, user?.username, user?.email, navigate]);
+  }, [user, navigate]);
 
   function handleLogout() {
     sessionStorage.removeItem("userLoggedIn");

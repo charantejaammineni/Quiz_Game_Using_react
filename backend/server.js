@@ -104,6 +104,18 @@ app.put("/api/users/:id", (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
+    // Check for email conflicts with other users
+    if (req.body.email) {
+      const emailConflict = users.some(
+        (u) =>
+          String(u.id) !== userId &&
+          (u.email || "").toLowerCase() === req.body.email.trim().toLowerCase()
+      );
+      if (emailConflict) {
+        return res.status(400).json({ error: "Email already in use by another user" });
+      }
+    }
+
     const displayName = (req.body.name || req.body.username || users[index].name || "").trim();
 
     users[index] = {
@@ -163,6 +175,7 @@ app.post("/api/login", (req, res) => {
         username: user.username || user.name,
         email: user.email,
         role: user.role,
+        status: user.status,
       },
     });
   } catch (error) {
@@ -429,6 +442,24 @@ app.post("/api/results", (req, res) => {
     res.status(201).json(newResult);
   } catch (error) {
     res.status(500).json({ error: "Failed to save quiz result" });
+  }
+});
+
+// DELETE result
+app.delete("/api/results/:id", (req, res) => {
+  try {
+    const results = readJson("results");
+    const resultId = String(req.params.id);
+    const filtered = results.filter((r) => String(r.id) !== resultId);
+
+    if (results.length === filtered.length) {
+      return res.status(404).json({ error: "Result not found" });
+    }
+
+    writeJson("results", filtered);
+    res.json({ message: "Result deleted successfully", id: resultId });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to delete result" });
   }
 });
 

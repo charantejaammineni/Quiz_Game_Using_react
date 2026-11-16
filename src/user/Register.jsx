@@ -59,7 +59,7 @@ function Register() {
 
       alert("Registration successful! Please sign in.");
       navigate("/user/signin");
-    } catch (err) {
+    } catch {
       setError("Unable to connect to server. Please try again.");
     }
   }

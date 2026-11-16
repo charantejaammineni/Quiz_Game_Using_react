@@ -45,12 +45,10 @@ function Navbar() {
     syncAuthState();
 
     // Keep navbar synced if SessionTimeout or another event clears storage
-    const interval = setInterval(syncAuthState, 1000);
     window.addEventListener("focus", syncAuthState);
     window.addEventListener("storage", syncAuthState);
 
     return () => {
-      clearInterval(interval);
       window.removeEventListener("focus", syncAuthState);
       window.removeEventListener("storage", syncAuthState);
     };

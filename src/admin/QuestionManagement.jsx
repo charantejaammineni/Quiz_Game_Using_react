@@ -216,6 +216,7 @@ function QuestionManagement() {
 
     if (!confirmDelete) return;
 
+
     try {
       const response = await fetch(`${QUESTIONS_API}/${id}`, {
         method: "DELETE",

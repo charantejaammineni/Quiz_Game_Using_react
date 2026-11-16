@@ -8,19 +8,15 @@ function Breadcrumb() {
     .split("/")
     .filter(Boolean);
 
-  const isAdminPage = location.pathname.startsWith("/admin");
-
   return (
     <div className="breadcrumb">
-      {/* {isAdminPage ? (
-        <span className="disabled-breadcrumb">Home</span>
-      ) : (
-        <Link to="/">Home</Link>
-      )} */}
-
       {pathParts.map((part, index) => {
         const path =
           "/" + pathParts.slice(0, index + 1).join("/");
+
+        // Skip rendering raw numeric IDs (e.g., quiz IDs) as standalone breadcrumbs
+        const isNumericId = /^\d+$/.test(part);
+        if (isNumericId) return null;
 
         const name = part
           .replace(/-/g, " ")

@@ -34,11 +34,7 @@ function UserHome() {
         // Filter quiz attempts for this specific user
         const userResults = results.filter((result) => {
           if (!user) return false;
-          return (
-            String(result.userId) === String(user.id) ||
-            result.username === user.name ||
-            result.username === user.username
-          );
+          return String(result.userId) === String(user.id);
         });
 
         setCompletedQuizzes(userResults.length);

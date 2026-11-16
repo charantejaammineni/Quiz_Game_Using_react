@@ -37,6 +37,13 @@ function AdminLogin() {
 
       const user = data.user;
 
+      // Check if admin account is inactive
+      if (user.status && user.status.toLowerCase() === "inactive") {
+        setError("Your admin account has been deactivated.");
+        setIsLoading(false);
+        return;
+      }
+
       if ((user.role || "").toLowerCase() !== "admin") {
         setError("Access denied: You do not have administrator permissions.");
         setIsLoading(false);
@@ -48,7 +55,7 @@ function AdminLogin() {
 
       // Clean redirect without alert interruption
       navigate("/admin");
-    } catch (err) {
+    } catch {
       setError("Unable to connect to server. Please try again.");
     } finally {
       setIsLoading(false);

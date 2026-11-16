@@ -1,12 +1,24 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Breadcrumb from "../components/Breadcrumb";
 
 const QUESTIONS_API = "http://localhost:5000/api/questions";
+const QUIZZES_API = "http://localhost:5000/api/quizzes";
 
 function UploadQuestions() {
   const [file, setFile] = useState(null);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [quizzes, setQuizzes] = useState([]);
+  const [selectedQuizId, setSelectedQuizId] = useState("");
+  const fileInputRef = useRef(null);
+
+  // Load quizzes for the dropdown
+  useEffect(() => {
+    fetch(QUIZZES_API)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => setQuizzes(data))
+      .catch(() => setQuizzes([]));
+  }, []);
 
   function handleUpload(event) {
     const selectedFile = event.target.files[0];
@@ -73,6 +85,11 @@ function UploadQuestions() {
             answer: answer.trim(),
           };
 
+          // Assign quizId if a quiz is selected
+          if (selectedQuizId) {
+            payload.quizId = selectedQuizId;
+          }
+
           const res = await fetch(QUESTIONS_API, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -89,6 +106,7 @@ function UploadQuestions() {
         `Successfully imported ${importedCount} questions from ${file.name} to the database!`
       );
       setFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (error) {
       console.error("XML Import Error:", error);
       setMessage(`Import failed: ${error.message}`);
@@ -105,12 +123,26 @@ function UploadQuestions() {
       <p>Upload quiz questions using an XML file.</p>
 
       <form onSubmit={handleSubmit}>
+        <label>Assign to Quiz (optional)</label>
+        <select
+          value={selectedQuizId}
+          onChange={(e) => setSelectedQuizId(e.target.value)}
+        >
+          <option value="">-- No specific quiz --</option>
+          {quizzes.map((quiz) => (
+            <option key={quiz.id} value={quiz.id}>
+              {quiz.name || quiz.title} ({quiz.category})
+            </option>
+          ))}
+        </select>
+
         <label>Choose Question File</label>
 
         {/* File upload */}
         <input
           type="file"
           accept=".xml"
+          ref={fileInputRef}
           onChange={handleUpload}
         />
 

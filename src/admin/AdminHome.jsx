@@ -65,8 +65,10 @@ function AdminHome() {
 
     updateDashboard();
 
-    // Refresh statistics periodically and when tab gains focus
-    const interval = setInterval(updateDashboard, 5000);
+    // Refresh statistics periodically (only when tab is visible) and when tab gains focus
+    const interval = setInterval(() => {
+      if (document.visibilityState === "visible") updateDashboard();
+    }, 30000);
     window.addEventListener("focus", updateDashboard);
 
     return () => {

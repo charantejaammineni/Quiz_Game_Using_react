@@ -7,13 +7,14 @@ function History() {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Retrieve logged-in user from session storage
-  let currentUser = null;
-  try {
-    currentUser = JSON.parse(sessionStorage.getItem("userLoggedIn"));
-  } catch {
-    currentUser = null;
-  }
+  // Retrieve logged-in user from session storage (stable across renders)
+  const [currentUser] = useState(() => {
+    try {
+      return JSON.parse(sessionStorage.getItem("userLoggedIn"));
+    } catch {
+      return null;
+    }
+  });
 
   useEffect(() => {
     async function loadHistory() {
@@ -27,7 +28,7 @@ function History() {
         // Filter results specifically for the logged-in user
         const userResults = allResults
           .filter((item) => {
-            if (!currentUser) return true; // Fallback if browsing as guest
+            if (!currentUser) return false;
             const matchId =
               item.userId && currentUser.id && String(item.userId) === String(currentUser.id);
             const matchEmail =
@@ -38,7 +39,7 @@ function History() {
               item.username &&
               (currentUser.name || currentUser.username) &&
               item.username.toLowerCase() ===
-                (currentUser.name || currentUser.username).toLowerCase();
+              (currentUser.name || currentUser.username).toLowerCase();
 
             return matchId || matchEmail || matchName;
           })
@@ -53,7 +54,7 @@ function History() {
     }
 
     loadHistory();
-  }, []);
+  }, [currentUser]);
 
   return (
     <div className="history-page">
@@ -67,7 +68,7 @@ function History() {
         <p>Loading your history...</p>
       ) : history.length === 0 ? (
         <div className="no-history">
-          <p>You haven't attempted any quizzes yet.</p>
+          <p>You haven&apos;t attempted any quizzes yet.</p>
           <Link to="/user/quizzes">
             <button type="button">Take a Quiz</button>
           </Link>

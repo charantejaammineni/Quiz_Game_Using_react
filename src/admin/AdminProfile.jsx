@@ -1,5 +1,16 @@
 import Breadcrumb from "../components/Breadcrumb";
+
 function AdminProfile() {
+  let admin = null;
+  try {
+    admin = JSON.parse(sessionStorage.getItem("adminUser"));
+  } catch {
+    admin = null;
+  }
+
+  const adminName = admin?.name || admin?.username || "QuizMaster Admin";
+  const adminEmail = admin?.email || "admin@quizmaster.com";
+
   return (
     <div className="admin-page">
         <Breadcrumb/>
@@ -9,11 +20,11 @@ function AdminProfile() {
 
       <div className="profile-card">
         <div className="profile-avatar">
-          A
+          {adminName.charAt(0).toUpperCase()}
         </div>
 
-        <h2>QuizMaster Admin</h2>
-        <p>Email: admin@quizmaster.com</p>
+        <h2>{adminName}</h2>
+        <p>Email: {adminEmail}</p>
         <p>Role: Administrator</p>
         <p>Status: Active</p>
 

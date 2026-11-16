@@ -23,19 +23,20 @@ function Leaderboard() {
           const score = Number(result.score) || 0;
           const percentage = total > 0 ? Math.round((score / total) * 100) : 0;
           const username = result.username || result.name || "Anonymous";
+          const key = result.userId ? String(result.userId) : username;
 
-          if (!userStatsMap[username]) {
-            userStatsMap[username] = {
+          if (!userStatsMap[key]) {
+            userStatsMap[key] = {
               name: username,
               bestPercentage: percentage,
               bestScore: `${score} / ${total}`,
               totalAttempts: 1,
             };
           } else {
-            userStatsMap[username].totalAttempts += 1;
-            if (percentage > userStatsMap[username].bestPercentage) {
-              userStatsMap[username].bestPercentage = percentage;
-              userStatsMap[username].bestScore = `${score} / ${total}`;
+            userStatsMap[key].totalAttempts += 1;
+            if (percentage > userStatsMap[key].bestPercentage) {
+              userStatsMap[key].bestPercentage = percentage;
+              userStatsMap[key].bestScore = `${score} / ${total}`;
             }
           }
         });

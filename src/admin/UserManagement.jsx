@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Breadcrumb from "../components/Breadcrumb";
 
 const USERS_API = "http://localhost:5000/api/users";
@@ -103,10 +103,15 @@ function UserManagement() {
         );
         alert("User updated successfully!");
       } else {
+        if (!password) {
+          alert("Password is required for new users!");
+          return;
+        }
+
         const response = await fetch(USERS_API, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...userPayload, password: password || "user123" }),
+          body: JSON.stringify({ ...userPayload, password: password }),
         });
 
         if (!response.ok) {
@@ -130,7 +135,7 @@ function UserManagement() {
     setEditId(user.id);
     setName(user.name || user.username || "");
     setEmail(user.email || "");
-    setPassword(user.password || "");
+    setPassword("");
     setRole(user.role || "User");
     setStatus(user.status || "Active");
     setShowForm(true);

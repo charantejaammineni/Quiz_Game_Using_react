@@ -31,10 +31,15 @@ function QuizDetails() {
         );
 
         if (selectedQuiz) {
-          const category = (selectedQuiz.category || "").trim().toLowerCase();
-          const questionCount = questionsData.filter(
-            (q) => (q.category || "").trim().toLowerCase() === category
-          ).length;
+          const questionCount = questionsData.filter((q) => {
+            if (q.quizId !== undefined && q.quizId !== null && String(q.quizId).trim() !== "") {
+              return String(q.quizId) === String(quizId);
+            }
+            if (String(quizId) === "1") return (q.category || "").toLowerCase() === "java";
+            if (String(quizId) === "2") return (q.category || "").toLowerCase() === "sql";
+            if (String(quizId) === "3") return (q.category || "").toLowerCase().includes("it basic");
+            return false;
+          }).length;
 
           setQuiz({
             ...selectedQuiz,

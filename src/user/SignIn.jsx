@@ -64,7 +64,7 @@ function SignIn() {
 
       // Clean redirect without alert interruption
       navigate("/user");
-    } catch (err) {
+    } catch {
       setError("Unable to connect to server. Please try again.");
     } finally {
       setIsLoading(false);
@@ -102,7 +102,7 @@ function SignIn() {
       </form>
 
       <p>
-        Don't have an account? <Link to="/user/register">Register</Link>
+        Don&apos;t have an account? <Link to="/user/register">Register</Link>
       </p>
     </div>
   );

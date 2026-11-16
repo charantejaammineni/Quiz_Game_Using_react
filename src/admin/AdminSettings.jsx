@@ -1,10 +1,29 @@
 import { useState } from "react";
 
 function AdminSettings() {
-  const [notifications, setNotifications] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
+  const [notifications, setNotifications] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("adminSettings"));
+      return saved?.notifications ?? true;
+    } catch {
+      return true;
+    }
+  });
+
+  const [darkMode, setDarkMode] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("adminSettings"));
+      return saved?.darkMode ?? false;
+    } catch {
+      return false;
+    }
+  });
 
   function handleSave() {
+    localStorage.setItem(
+      "adminSettings",
+      JSON.stringify({ notifications, darkMode })
+    );
     alert("Settings saved successfully");
   }
 
@@ -36,48 +55,36 @@ function AdminSettings() {
         <h2>Preferences</h2>
 
         {/* Notification switch */}
-<div className="setting-row">
-  <span>Enable Notifications</span>
+        <div className="setting-row">
+          <span>Enable Notifications</span>
 
-  <label className="switch">
-    <input
-      type="checkbox"
-      checked={notifications}
-      onChange={(event) =>
-        setNotifications(event.target.checked)
-      }
-    />
-    <span className="slider"></span>
-  </label>
-</div>
-
-{/* Dark mode switch */}
-<div className="setting-row">
-  <span>Enable Dark Mode</span>
-
-  <label className="switch">
-    <input
-      type="checkbox"
-      checked={darkMode}
-      onChange={(event) =>
-        setDarkMode(event.target.checked)
-      }
-    />
-    <span className="slider"></span>
-  </label>
-</div>x
+          <label className="switch">
+            <input
+              type="checkbox"
+              checked={notifications}
+              onChange={(event) =>
+                setNotifications(event.target.checked)
+              }
+            />
+            <span className="slider"></span>
+          </label>
+        </div>
 
         {/* Dark mode switch */}
-        <label>
-          <input
-            type="checkbox"
-            checked={darkMode}
-            onChange={(event) =>
-              setDarkMode(event.target.checked)
-            }
-          />
-          Enable Dark Mode
-        </label>
+        <div className="setting-row">
+          <span>Enable Dark Mode</span>
+
+          <label className="switch">
+            <input
+              type="checkbox"
+              checked={darkMode}
+              onChange={(event) =>
+                setDarkMode(event.target.checked)
+              }
+            />
+            <span className="slider"></span>
+          </label>
+        </div>
 
         <button onClick={handleSave}>
           Save Settings
