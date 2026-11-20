@@ -43,11 +43,12 @@ app.get("/", (req, res) => {
 // 1. USERS ENDPOINTS
 // ==========================================
 
-// GET all users
+// GET all users (passwords sanitized for security)
 app.get("/api/users", (req, res) => {
   try {
     const users = readJson("users");
-    res.json(users);
+    const sanitizedUsers = users.map(({ password, ...u }) => u);
+    res.json(sanitizedUsers);
   } catch (error) {
     res.status(500).json({ error: "Failed to read users" });
   }
@@ -167,6 +168,10 @@ app.post("/api/login", (req, res) => {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
+    if ((user.status || "").toLowerCase() === "inactive") {
+      return res.status(403).json({ error: "Account is inactive. Please contact the administrator." });
+    }
+
     res.json({
       message: "Login successful",
       user: {
@@ -270,6 +275,14 @@ app.delete("/api/quizzes/:id", (req, res) => {
     }
 
     writeJson("quizzes", filtered);
+
+    // Cascade delete any questions belonging to this deleted quiz
+    const questions = readJson("questions");
+    const remainingQuestions = questions.filter((q) => String(q.quizId) !== quizId);
+    if (questions.length !== remainingQuestions.length) {
+      writeJson("questions", remainingQuestions);
+    }
+
     res.json({ message: "Quiz deleted successfully", id: quizId });
   } catch (error) {
     res.status(500).json({ error: "Failed to delete quiz" });
@@ -319,8 +332,13 @@ app.post("/api/questions", (req, res) => {
     const questionText = (question || text || "").trim();
     const finalAnswer = (correctAnswer || answer || "").trim();
 
-    if (!questionText || !Array.isArray(options) || !finalAnswer) {
-      return res.status(400).json({ error: "Question text, options, and correctAnswer are required" });
+    const cleanedOptions = options.map((opt) => String(opt).trim()).filter(Boolean);
+    if (!questionText || cleanedOptions.length < 2 || !finalAnswer) {
+      return res.status(400).json({ error: "Question text, at least 2 non-empty options, and correctAnswer are required" });
+    }
+
+    if (!cleanedOptions.includes(finalAnswer)) {
+      return res.status(400).json({ error: "Correct answer must match one of the provided options" });
     }
 
     const numericIds = questions.map((q) => Number(q.id)).filter((id) => !isNaN(id));
@@ -331,7 +349,7 @@ app.post("/api/questions", (req, res) => {
       quizId: quizId ? String(quizId) : undefined,
       question: questionText,
       text: questionText,
-      options: options.map((opt) => String(opt).trim()),
+      options: cleanedOptions,
       correctAnswer: finalAnswer,
       answer: finalAnswer,
       category: (category || "General").trim(),
@@ -425,6 +443,9 @@ app.post("/api/results", (req, res) => {
     const numericIds = results.map((r) => Number(r.id)).filter((id) => !isNaN(id));
     const nextId = numericIds.length > 0 ? Math.max(...numericIds) + 1 : 1;
 
+    const safeTotal = Math.max(1, Number(totalQuestions) || 5);
+    const safeScore = Math.min(safeTotal, Math.max(0, Number(score) || 0));
+
     const newResult = {
       id: String(nextId),
       userId: userId || "guest",
@@ -432,8 +453,8 @@ app.post("/api/results", (req, res) => {
       quizId: quizId || "unknown",
       quizTitle: quizTitle || "Quiz Attempt",
       category: category || "General",
-      score: Number(score) || 0,
-      totalQuestions: Number(totalQuestions) || 5,
+      score: safeScore,
+      totalQuestions: safeTotal,
       date: date || new Date().toISOString().split("T")[0],
     };
 

@@ -20,6 +20,16 @@ function Register() {
     setError("");
     setIsEmailTaken(false);
 
+    if (!name.trim()) {
+      setError("Name is required.");
+      return;
+    }
+
+    if (password.trim().length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const LOGIN_API = "http://localhost:5000/api/login";
@@ -11,6 +11,13 @@ function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  // If already logged in as admin, redirect to admin dashboard
+  useEffect(() => {
+    if (sessionStorage.getItem("adminLoggedIn") === "true") {
+      navigate("/admin", { replace: true });
+    }
+  }, [navigate]);
 
   async function handleSubmit(event) {
     event.preventDefault();

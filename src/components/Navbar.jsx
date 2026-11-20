@@ -86,6 +86,7 @@ function Navbar() {
           <NavLink to="/admin/quizzes">Quizzes</NavLink>
           <NavLink to="/admin/users">Users</NavLink>
           <NavLink to="/admin/results">Results</NavLink>
+          <NavLink to="/admin/reports">Reports</NavLink>
           <button type="button" onClick={handleAdminLogout}>
             Logout
           </button>

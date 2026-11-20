@@ -4,10 +4,21 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 function AdminAuth() {
   const location = useLocation();
 
-  const isLoggedIn =
-    sessionStorage.getItem("adminLoggedIn") === "true";
+  const isFlagLoggedIn = sessionStorage.getItem("adminLoggedIn") === "true";
+  let adminUser = null;
+  try {
+    adminUser = JSON.parse(sessionStorage.getItem("adminUser"));
+  } catch {
+    adminUser = null;
+  }
 
-  if (!isLoggedIn) {
+  const isValidAdmin =
+    isFlagLoggedIn &&
+    adminUser &&
+    (adminUser.role || "").toLowerCase() === "admin" &&
+    (adminUser.status || "active").toLowerCase() !== "inactive";
+
+  if (!isValidAdmin) {
     return (
       <Navigate
         to="/admin/signin"

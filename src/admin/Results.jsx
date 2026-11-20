@@ -56,6 +56,25 @@ function Results() {
       result.quiz.toLowerCase().includes(search.toLowerCase())
   );
 
+  async function handleDeleteResult(id) {
+    const confirmDelete = window.confirm("Are you sure you want to delete this result?");
+    if (!confirmDelete) return;
+
+    try {
+      const response = await fetch(`${RESULTS_API}/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete result");
+      }
+
+      setResults((prev) => prev.filter((r) => String(r.id) !== String(id)));
+    } catch (err) {
+      alert(err.message || "Could not delete result");
+    }
+  }
+
   return (
     <div className="admin-page">
       <Breadcrumb />
@@ -85,6 +104,7 @@ function Results() {
               <th>Score</th>
               <th>Percentage</th>
               <th>Date</th>
+              <th>Actions</th>
             </tr>
           </thead>
 
@@ -100,6 +120,23 @@ function Results() {
                 </td>
                 <td>{result.percentage}%</td>
                 <td>{result.date}</td>
+                <td>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteResult(result.id)}
+                    style={{
+                      backgroundColor: "#dc2626",
+                      color: "#fff",
+                      border: "none",
+                      padding: "5px 12px",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                      fontSize: "0.85rem",
+                    }}
+                  >
+                    Delete
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>

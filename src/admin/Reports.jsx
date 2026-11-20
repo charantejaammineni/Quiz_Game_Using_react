@@ -112,7 +112,7 @@ function Reports() {
           <h3>Highest Score</h3>
           <p>
             {results.length > 0
-              ? Math.max(...results.map((result) => result.percentage))
+              ? Math.max(0, ...results.map((result) => Number(result.percentage) || 0))
               : 0}
             %
           </p>
@@ -122,7 +122,7 @@ function Reports() {
           <h3>Lowest Score</h3>
           <p>
             {results.length > 0
-              ? Math.min(...results.map((result) => result.percentage))
+              ? Math.min(100, ...results.map((result) => Number(result.percentage) || 0))
               : 0}
             %
           </p>

@@ -238,35 +238,5 @@
     ],
     "correctAnswer": "Router",
     "answer": "Router"
-  },
-  {
-    "id": 16,
-    "quizId": "4",
-    "question": "hi",
-    "text": "hi",
-    "options": [
-      "hh",
-      "joo",
-      "lo",
-      "hh"
-    ],
-    "correctAnswer": "hh",
-    "answer": "hh",
-    "category": "Java"
-  },
-  {
-    "id": 17,
-    "quizId": "4",
-    "question": "hh",
-    "text": "hh",
-    "options": [
-      "12",
-      "123",
-      "1234",
-      "12345"
-    ],
-    "correctAnswer": "12",
-    "answer": "12",
-    "category": "Java"
   }
 ]

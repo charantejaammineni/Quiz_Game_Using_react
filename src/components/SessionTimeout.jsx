@@ -14,6 +14,8 @@ function SessionTimeout() {
     function logout() {
       if (sessionStorage.getItem("adminLoggedIn") === "true") {
         sessionStorage.removeItem("adminLoggedIn");
+        sessionStorage.removeItem("adminUser");
+        sessionStorage.setItem("logoutMessage", "Session timed out due to inactivity.");
         navigate("/admin/signin", { replace: true });
         return;
       }
@@ -22,6 +24,7 @@ function SessionTimeout() {
 
       if (user) {
         sessionStorage.removeItem("userLoggedIn");
+        sessionStorage.setItem("logoutMessage", "Session timed out due to inactivity.");
         navigate("/user/signin", { replace: true });
       }
     }

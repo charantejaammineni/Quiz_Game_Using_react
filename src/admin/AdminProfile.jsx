@@ -1,6 +1,8 @@
+import { useNavigate } from "react-router-dom";
 import Breadcrumb from "../components/Breadcrumb";
 
 function AdminProfile() {
+  const navigate = useNavigate();
   let admin = null;
   try {
     admin = JSON.parse(sessionStorage.getItem("adminUser"));
@@ -28,7 +30,9 @@ function AdminProfile() {
         <p>Role: Administrator</p>
         <p>Status: Active</p>
 
-        <button>Edit Profile</button>
+        <button type="button" onClick={() => navigate("/admin/settings")}>
+          Edit Settings
+        </button>
       </div>
     </div>
   );

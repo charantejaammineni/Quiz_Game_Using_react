@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 const LOGIN_API = "http://localhost:5000/api/login";
@@ -10,6 +10,18 @@ function SignIn() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  // If already logged in, redirect directly to user dashboard
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem("userLoggedIn"));
+      if (saved && saved.id && (saved.role || "").toLowerCase() === "user") {
+        navigate("/user", { replace: true });
+      }
+    } catch {
+      // ignore
+    }
+  }, [navigate]);
 
   async function handleSubmit(event) {
     event.preventDefault();

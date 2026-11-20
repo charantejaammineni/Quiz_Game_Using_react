@@ -217,10 +217,10 @@ function UserManagement() {
             </div>
 
             <div className="form-group">
-              <label>Password</label>
+              <label>Password {editId !== null && "(Leave blank to keep current)"}</label>
               <input
                 type="password"
-                placeholder="Enter password"
+                placeholder={editId !== null ? "Leave blank to keep current password" : "Enter password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />

@@ -11,7 +11,12 @@ function UserAuth() {
     user = null;
   }
 
-  if (!user || !user.id || user.role !== "User") {
+  if (
+    !user ||
+    !user.id ||
+    (user.role || "").toLowerCase() !== "user" ||
+    (user.status || "").toLowerCase() === "inactive"
+  ) {
     return <Navigate to="/user/signin" replace />;
   }
 

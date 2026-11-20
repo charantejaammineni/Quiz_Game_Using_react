@@ -23,11 +23,18 @@ function Result() {
 
   // Intercept the browser back button so it doesn't return to the test questions
   useEffect(() => {
-    window.history.pushState(null, "", window.location.href);
+    const BUFFER_SIZE = 15;
+    const pushGuardBuffer = () => {
+      for (let i = 0; i < BUFFER_SIZE; i++) {
+        window.history.pushState(null, "", window.location.href);
+      }
+    };
+
+    pushGuardBuffer();
 
     function handlePopState() {
+      pushGuardBuffer();
       setShowBackModal(true);
-      window.history.pushState(null, "", window.location.href);
     }
 
     window.addEventListener("popstate", handlePopState);

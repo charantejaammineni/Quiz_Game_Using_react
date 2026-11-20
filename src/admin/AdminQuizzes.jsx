@@ -139,10 +139,19 @@ function AdminQuizzes() {
                 <button
                   type="button"
                   onClick={() =>
+                    navigate(`/admin/quizzes/${quiz.id}/details`)
+                  }
+                >
+                  View
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() =>
                     navigate(`/admin/quizzes/${quiz.id}/questions`)
                   }
                 >
-                  Manage
+                  Questions
                 </button>
 
                 <button
